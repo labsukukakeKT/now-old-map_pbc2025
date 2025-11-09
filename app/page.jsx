@@ -2,8 +2,11 @@
 
 export default function Home() {
     return (
-        <main>
-            <h1>Hello World!</h1>
-        </main>
+        <div class="screengrid">
+            <div class="controlpanel"></div>
+            <div id="map"></div>
+        </div>
+
+
     );
 }
