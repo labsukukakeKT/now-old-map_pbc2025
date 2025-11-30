@@ -67,7 +67,7 @@ export default function Home() {
                     gridColumn: '1 / 2',
                     overflowY: 'auto'
                 }}>
-                    <h1>紙地図コレクター</h1>
+                    <h1>今昔マップ</h1>
                 </div>
 
 
