@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import L from 'leaflet';
+import { MapContext } from "./MapContext";
 
 
 /**
  * 
  * @param {object} props
- * @param {L.Map | null} props.map - Leafletマップインスタンス 
  * @param {object} props.geojson - 描画するGeoJSONデータ
  */
-export default function GeoJsonLayer({map, geojson}) {
+export default function GeoJsonLayer({ geojson }) {
+    const map = useContext(MapContext);
+
     useEffect(() => {
         if (map && geojson) {
             const layer = L.geoJSON(geojson, {

@@ -1,7 +1,7 @@
 // データベース接続設定 (Supabaseなど)
 datasource db {
   provider = "postgresql" // SupabaseはPostgreSQL
-  url      = env("DATABASE_URL") // .envファイルから接続URLを読み込む
+  url      = env("DATABASE_URL")
 }
 
 // Prisma Client生成設定
@@ -9,12 +9,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  // 1. カラム名
-  // 2. データ型 (Prismaの型)
-  // 3. アトリビュート (追加の属性や制約)
-  id       Int      @id @default(autoincrement()) // プライマリキー、自動採番
-  email    String   @unique                       // 文字列、一意の制約
-  name     String?                               // 文字列、? は Nullable (NULLを許可)
-  createdAt DateTime @default(now())             // 日付と時刻、デフォルト値は現在時刻
+
+model Location {
+  id        Int       @id @default(autoincrement())
+  title     String
+  lat       Float
+  lng       Float
+  eraStart  Int?
+  eraEnd    Int?
+  abst      String?
+  detail    String?
+  createdAt DateTime  @default(now())
 }

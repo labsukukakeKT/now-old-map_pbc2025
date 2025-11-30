@@ -2,13 +2,10 @@
 
 import dynamic from "next/dynamic";
 import React, { useState, useEffect } from "react";
-import GeoJsonLayer from "../components/GeoJsonLayer";
 
-// const JSON_URL = "../public/data_geojson/66_東京.geojson";
 const JSON_URL = "/data_geojson/66_東京.geojson";
 
-
-// Mapコンポーネントではleafletを使っているため動的インポートが必要
+// Mapコンポーネントを動的にインポートし、SSRを無効にする
 const Map = dynamic(
     () => import('../components/Map'),
     {
@@ -23,17 +20,21 @@ const Map = dynamic(
     }
 );
 
+// GeoJsonLayerも動的にインポートし、SSRを無効にする
+const GeoJsonLayer = dynamic(
+    () => import('../components/GeoJsonLayer'),
+    { ssr: false }
+);
 
 export default function Home() {
-    // マップインスタンスとGeoJsonデータを保持するState
-    const [mapInstance, setMapInstance] = useState(null);
     const [geojson, setGeoJson] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // GeoJsonを非同期で読み込むロジック
+    // GeoJsonを非同期で読み込む
     useEffect(() => {
         async function fetchGeoJson() {
             try {
+                setIsLoading(true);
                 const response = await fetch(JSON_URL);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch GeoJSON: ${response.statusText}`);
@@ -51,15 +52,13 @@ export default function Home() {
 
     
     return (
-        // 画面の高さいっぱいまで広げるコンテナ
         <main style={{ width: '100vw', height: '100vh', margin: 0, padding: 0}}>
             <div style={{
                 display: 'grid',
                 height: '100%',
                 width: '100%',
-                gridTemplateColumns: '400px 1fr', // 左右に分割
-                overflow: 'hidden', // スクロール防止
-                // border: '5px solid red'
+                gridTemplateColumns: '400px 1fr',
+                overflow: 'hidden',
             }}>
 
                 {/* サイドバー */}
@@ -70,7 +69,6 @@ export default function Home() {
                     <h1>今昔マップ</h1>
                 </div>
 
-
                 {/* マップエリア */}
                 <div style={{
                     gridColumn: '2 / 3',
@@ -78,11 +76,11 @@ export default function Home() {
                     height: '100%',
                     width: '100%'
                 }}>
-                    <Map onMapLoad={setMapInstance}/>
-                    {/* マップとgeojsonが揃ったらレンダリング */}
-                    {mapInstance && geojson && (
-                        <GeoJsonLayer map={mapInstance} geojson={geojson}/>
-                    )}
+                    {/* Mapコンポーネントの子としてGeoJsonLayerを配置 */}
+                    <Map>
+                        {/* geojsonがロードされたらレイヤーを描画 */}
+                        {geojson && <GeoJsonLayer geojson={geojson} />}
+                    </Map>
                 </div>
             </div>
         </main>
