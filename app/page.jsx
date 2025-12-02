@@ -1,87 +1,85 @@
-'use client';
-
+'use client'
 import dynamic from "next/dynamic";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 
-const JSON_URL = "/data_geojson/66_東京.geojson";
+const Map = dynamic(() => import("@/components/Map"), {
+    ssr: false,
+});
 
-// Mapコンポーネントを動的にインポートし、SSRを無効にする
-const Map = dynamic(
-    () => import('../components/Map'),
-    {
-        ssr: false,
-        loading: () => <p style={{ 
-            height: '100%',
-            width: '100%',
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center' 
-        }}>マップをロード中...</p>
-    }
-);
-
-// GeoJsonLayerも動的にインポートし、SSRを無効にする
-const GeoJsonLayer = dynamic(
-    () => import('../components/GeoJsonLayer'),
-    { ssr: false }
-);
+// サイドバーの幅
+const SLIDEBAR_OPNE_WIDTH = '400px';
+const SLIDEBAR_CLOSED_WIDTH = '80px';
 
 export default function Home() {
-    const [geojson, setGeoJson] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    // GeoJsonを非同期で読み込む
-    useEffect(() => {
-        async function fetchGeoJson() {
-            try {
-                setIsLoading(true);
-                const response = await fetch(JSON_URL);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch GeoJSON: ${response.statusText}`);
-                }
-                const data = await response.json();
-                setGeoJson(data);
-            } catch(error) {
-                console.error("GeoJSON読み込みエラー", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchGeoJson();
-    }, []);
-
+    // サイドバー開閉の状態の管理
+    const [isSlidebarOpen, setIsSlidebarOpen] = useState(false);
+    function toggleSidebar() {
+        setIsSlidebarOpen(!isSlidebarOpen);
+    };
+    let slidebar_width;
+    if (isSlidebarOpen) {
+        slidebar_width = SLIDEBAR_OPNE_WIDTH;
+    } else {
+        slidebar_width = SLIDEBAR_CLOSED_WIDTH;
+    }
     
+
+
+
     return (
-        <main style={{ width: '100vw', height: '100vh', margin: 0, padding: 0}}>
+        <main style={{
+            display: 'grid',
+            height: '100%',
+            width: '100%',
+            gridTemplateColumns: `${SLIDEBAR_CLOSED_WIDTH} 1fr`,
+            overflow: 'hidden',
+        }}>
+
+                
+            {/* サイドバー */}
             <div style={{
-                display: 'grid',
-                height: '100%',
-                width: '100%',
-                gridTemplateColumns: '400px 1fr',
-                overflow: 'hidden',
+                position: 'absolute',
+                width: slidebar_width, // 幅を動的に変更
+                height: 'calc(100% - 80px)', // ヘッダーバーの分引く
+                zIndex: 10,
+                overflowY: isSlidebarOpen ? 'auto' : 'hidden',
+                backgroundColor: '#f9f9f9',
+                padding: 0,
+                transition: 'width 0.3s ease', // 開閉アニメーション
+                display: 'flex',
+                flexDirection: 'column',
             }}>
-
-                {/* サイドバー */}
-                <div style={{
-                    gridColumn: '1 / 2',
-                    overflowY: 'auto'
+                
+                {/* サイドバーの開閉ボタン */}
+                <button onClick={toggleSidebar} style={{
+                    width: '60px',
+                    height: '40px',
+                    margin: '10px'
                 }}>
-                    <h1>今昔マップ</h1>
-                </div>
+                    Click Me
+                </button>
 
-                {/* マップエリア */}
-                <div style={{
-                    gridColumn: '2 / 3',
-                    position: 'relative',
-                    height: '100%',
-                    width: '100%'
-                }}>
-                    {/* Mapコンポーネントの子としてGeoJsonLayerを配置 */}
-                    <Map>
-                        {/* geojsonがロードされたらレイヤーを描画 */}
-                        {geojson && <GeoJsonLayer geojson={geojson} />}
-                    </Map>
-                </div>
+                
+                {/* サイドバーのコンテンツ */}
+                {isSlidebarOpen && (
+                    <div style={{flexGrow: 1}}>
+                        これは車輪の発明
+                        <br></br>
+                        これはサイドバー
+                    </div>
+                )}
+            </div>
+
+
+            {/* マップエリア */}
+            <div style={{
+                gridColumn: '2 / 3',
+                width: '100%',
+                height: '100%',
+                zIndex: 0,
+                position: 'relative',
+            }}>
+                <Map />
             </div>
         </main>
     );

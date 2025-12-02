@@ -1,10 +1,21 @@
-html,
-body {
-  height: 100%;
+/* ブラウザのデフォルトスタイルをリセット */
+html, body {
+  /* スクロールバーが表示されないようにoverflowを隠す */
+  overflow: hidden; 
+  
+  /* デフォルトのマージンとパディングをゼロにする */
   margin: 0;
   padding: 0;
+  
+  /* 画面全体のサイズをビューポートぴったりにする */
+  width: 100vw;
+  height: 100vh;
 }
 
+/* box-sizingをborder-boxに設定すると、width/heightにpadding/borderが含まれるようになり、計算が楽になります */
+* {
+  box-sizing: border-box;
+}
 
 #__next {
   height: 100%;
