@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { MapContext } from './MapContext';
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Children } from 'react';
 
-export default function Map({ tile_url }) {
+export default function Map({ children }) {
     const mapRef = useRef(null);
     const layerRef = useRef(null);
     const container_id = 'map';
@@ -27,7 +29,16 @@ export default function Map({ tile_url }) {
         layerRef.current.setUrl(tile_url);
 
 
-    }, [tile_url]);
+    }, []);
 
-    return <div id="map" style={{ height: '100%', width: '100%' }}></div>;
+
+    
+    return (
+        <MapContext.Provider value={{ mapRef, layerRef }}>
+            <div id={container_id} style={{ height: '100%', width: '100%' }}>
+                {children}
+
+            </div>
+        </MapContext.Provider>
+    );
 }
