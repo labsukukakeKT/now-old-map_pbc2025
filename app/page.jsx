@@ -1,20 +1,36 @@
 'use client'
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import MarkerLayer from "@/components/MarkerLayer";
 
 const Map = dynamic(() => import("@/components/Map"), {
     ssr: false,
 });
+
+
 
 // サイドバーの幅
 const SLIDEBAR_OPNE_WIDTH = '400px';
 const SLIDEBAR_CLOSED_WIDTH = '80px';
 
 // 地図のURL
-const TOPO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png";
-const PHOTO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg";
+// const TOPO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png";
+// const PHOTO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg";
 
 export default function Home() {
+    // 場所データを保持するステート
+    const [locations, setLocations] = useState([]);
+    // マウント時にAPIからデータの取得
+    useEffect(() => {
+        const fetchLocations = async () => {
+            const response = await fetch('/api/locations');
+            const data = await response.json();
+            setLocations(data);
+        };
+        fetchLocations();
+    }, [])
+
+
     // サイドバー開閉の状態の管理
     const [isSlidebarOpen, setIsSlidebarOpen] = useState(false);
     function toggleSidebar() {
@@ -29,18 +45,16 @@ export default function Home() {
     
 
     // 地形図/航空写真の切り替え
-    const [isTopoMap, setIsTopleMap] = useState(true);
-    function toggleTopoMap() {
-        setIsTopleMap(!isTopoMap);
-    };
-    let tile_url;
-    if (isTopoMap) {
-        tile_url = TOPO_TILE_URL;
-    } else {
-        tile_url = PHOTO_TILE_URL;
-    }
-
-
+    // const [isTopoMap, setIsTopleMap] = useState(true);
+    // function toggleTopoMap() {
+    //     setIsTopleMap(!isTopoMap);
+    // };
+    // let tile_url;
+    // if (isTopoMap) {
+    //     tile_url = TOPO_TILE_URL;
+    // } else {
+    //     tile_url = PHOTO_TILE_URL;
+    // }
 
 
     return (
@@ -108,7 +122,9 @@ export default function Home() {
                 zIndex: 0,
                 position: 'relative',
             }}>
-                <Map tile_url={tile_url} />
+                <Map>
+                    <MarkerLayer locations={locations} />
+                </Map>
             </div>
         </main>
     );

@@ -1,44 +1,30 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import { MapContext } from './MapContext';
 import L from "leaflet";
+import { MapContainer, TileLayer } from 'react-leaflet';
 import "leaflet/dist/leaflet.css";
-import { Children } from 'react';
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+
+// Next.jsでLeafletを扱う際のトラブルとして、マーカー画像を認識できない。
+// マーカー画像のパスを明示的に指定するようにする。
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x.src,
+    iconUrl: markerIcon.src,
+    shadowUrl: markerShadow.src
+})
+
 
 export default function Map({ children }) {
-    const mapRef = useRef(null);
-    const layerRef = useRef(null);
-    const container_id = 'map';
-    
-
-    useEffect(() => {
-        if (!mapRef.current) {
-            mapRef.current = L.map(container_id).setView([35.5117, 139.4754], 15);
-        }
-
-        // 初回だけレイヤーをつくる
-        if (!layerRef.current) {
-            layerRef.current = L.tileLayer(tile_url, {
-                attribution: '出典: <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">地理院タイル</a>',
-            }).addTo(mapRef.current);
-            return;
-        }
-        
-
-        // tile_layerが変更された場合、レイヤーを更新
-        layerRef.current.setUrl(tile_url);
-
-
-    }, []);
-
-
-    
     return (
-        <MapContext.Provider value={{ mapRef, layerRef }}>
-            <div id={container_id} style={{ height: '100%', width: '100%' }}>
-                {children}
-
-            </div>
-        </MapContext.Provider>
+        <MapContainer center={[35.5117, 139.4754]} zoom={15} style={{height: '100%', width: '100%'}}>
+            <TileLayer
+                attribution='&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+                url="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png"
+            />
+            {children}
+        </MapContainer>
     );
 }
