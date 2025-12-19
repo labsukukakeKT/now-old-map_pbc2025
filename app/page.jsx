@@ -71,6 +71,12 @@ export default function Home() {
     // スライドバーの状態管理
     const [selectedYear, setSelectedYear] = useState(2025);
     
+    // マーカークリック時の処理
+    const handleLocationSelect = (location) => {
+        setSelectedLocation(location);
+        setIsSlidebarOpen(true); // サイドバーを自動で開く
+    };
+    
 
     // 地形図/航空写真の切り替え
     // const [isTopoMap, setIsTopleMap] = useState(true);
@@ -126,94 +132,89 @@ export default function Home() {
                         overflowY: 'auto',
                         flexGrow: 1
                     }}>
-                        <h2 style={{fontSize: '18px', marginBottom: '15px'}}>場所リスト</h2>
-                        
-                        {/* 場所リスト */}
-                        <div style={{marginBottom: '20px'}}>
-                            {safeLocations.map((loc) => (
-                                <div 
-                                    key={loc.id}
-                                    onClick={() => setSelectedLocation(loc)}
-                                    style={{
-                                        padding: '10px',
-                                        marginBottom: '10px',
-                                        backgroundColor: selectedLocation?.id === loc.id ? '#e3f2fd' : '#fff',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '5px',
-                                        cursor: 'pointer',
-                                        transition: 'background-color 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (selectedLocation?.id !== loc.id) {
-                                            e.currentTarget.style.backgroundColor = '#f5f5f5';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (selectedLocation?.id !== loc.id) {
-                                            e.currentTarget.style.backgroundColor = '#fff';
-                                        }
-                                    }}
-                                >
-                                    <strong style={{display: 'block', marginBottom: '5px'}}>{loc.title}</strong>
-                                    {loc.eraStart && (
-                                        <small style={{color: '#666'}}>
-                                            {loc.eraStart}年 {loc.eraEnd && loc.eraEnd !== 9999 ? `- ${loc.eraEnd}年` : ''}
-                                        </small>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* 選択された場所の詳細 */}
-                        {selectedLocation && (
+                        {selectedLocation ? (
+                            // 選択中は「詳細のみ」を表示
                             <div style={{
-                                marginTop: '20px',
+                                marginTop: '0',
                                 padding: '15px',
                                 backgroundColor: '#f9f9f9',
                                 border: '2px solid #2196F3',
                                 borderRadius: '8px'
                             }}>
-                                <h3 style={{fontSize: '16px', marginBottom: '10px', color: '#2196F3'}}>
-                                    {selectedLocation.title}
+                                <h3 style={{fontSize: '16px', margin: 0, color: '#2196F3'}}>
+                                    {selectedLocation.place_name}
                                 </h3>
-                                
+
                                 {/* 画像表示エリア */}
                                 <div style={{
                                     width: '100%',
                                     height: '200px',
                                     backgroundColor: '#e0e0e0',
                                     borderRadius: '5px',
-                                    marginBottom: '10px',
+                                    margin: '10px 0',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     color: '#999'
                                 }}>
-                                    {/* TODO: 画像URLを追加したらここに表示 */}
-                                    画像エリア
+                                    {selectedLocation.place_photo_url ? (
+                                        <img src={selectedLocation.place_photo_url} alt={selectedLocation.place_name} style={{maxWidth: '100%', maxHeight: '100%'}} />
+                                    ) : (
+                                        '画像エリア'
+                                    )}
                                 </div>
 
                                 {/* 説明文 */}
                                 <div style={{marginBottom: '10px'}}>
                                     <strong>概要:</strong>
                                     <p style={{margin: '5px 0', color: '#555'}}>
-                                        {selectedLocation.abst || '説明なし'}
+                                        {selectedLocation.place_description || '説明なし'}
                                     </p>
                                 </div>
 
-                                {selectedLocation.detail && (
-                                    <div>
-                                        <strong>詳細:</strong>
-                                        <p style={{margin: '5px 0', color: '#555'}}>
-                                            {selectedLocation.detail}
-                                        </p>
-                                    </div>
-                                )}
-
                                 <div style={{marginTop: '10px', fontSize: '12px', color: '#888'}}>
-                                    座標: {selectedLocation.lat.toFixed(5)}, {selectedLocation.lng.toFixed(5)}
+                                    座標: {selectedLocation.lattitude?.toFixed(5) || 'N/A'}, {selectedLocation.longitude?.toFixed(5) || 'N/A'}
                                 </div>
                             </div>
+                        ) : (
+                            // 未選択時はリストを表示
+                            <>
+                                <h2 style={{fontSize: '18px', marginBottom: '15px'}}>場所リスト</h2>
+                                <div style={{marginBottom: '20px'}}>
+                                    {safeLocations.map((loc) => (
+                                        <div 
+                                            key={loc.place_id}
+                                            onClick={() => setSelectedLocation(loc)}
+                                            style={{
+                                                padding: '10px',
+                                                marginBottom: '10px',
+                                                backgroundColor: selectedLocation?.place_id === loc.place_id ? '#e3f2fd' : '#fff',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '5px',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (selectedLocation?.place_id !== loc.place_id) {
+                                                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (selectedLocation?.place_id !== loc.place_id) {
+                                                    e.currentTarget.style.backgroundColor = '#fff';
+                                                }
+                                            }}
+                                        >
+                                            <strong style={{display: 'block', marginBottom: '5px'}}>{loc.place_name}</strong>
+                                            {loc.place_era_start && (
+                                                <small style={{color: '#666'}}>
+                                                    {loc.place_era_start}年 {loc.place_era_end && loc.place_era_end !== 9999 ? `- ${loc.place_era_end}年` : ''}
+                                                </small>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
                 )}
