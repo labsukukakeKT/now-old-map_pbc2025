@@ -46,8 +46,8 @@ model place_DB {
   place_description  String?
   place_photo_url    String?
 
-  place_era_start    DateTime?
-  place_era_end      DateTime? @default(now())
+  place_era_start    Int?
+  place_era_end      Int?
 
   // 逆参照（1つの場所が複数Postを持つ）
   posts              post[]

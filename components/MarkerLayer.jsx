@@ -15,11 +15,11 @@ export default function MarkerLayer({ locations }) {
     return (
         <MarkerClusterGroup>
             {locations.map((loc) => (
-                <Marker key={loc.id} position={[loc.lat, loc.lng]}>
+                <Marker key={loc.id} position={[loc.lattitude, loc.longitude]}>
                     <Popup>
-                        <strong>{loc.title}</strong>
+                        <strong>{loc.place_name}</strong>
                         <br />
-                        {loc.abst}
+                        {loc.description}
                     </Popup>
                 </Marker>
             ))}
