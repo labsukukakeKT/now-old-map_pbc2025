@@ -45,6 +45,9 @@ export default function Home() {
     } else {
         slidebar_width = SLIDEBAR_CLOSED_WIDTH;
     }
+
+    // 選択された場所の管理
+    const [selectedLocation, setSelectedLocation] = useState(null);
     
 
     // 地形図/航空写真の切り替え
@@ -96,20 +99,100 @@ export default function Home() {
                 
                 {/* サイドバーのコンテンツ */}
                 {isSlidebarOpen && (
-                    <div>
-                        <div style={{flexGrow: 1}}>
-                            これは車輪の発明
-                            <br></br>
-                            これはサイドバー
+                    <div style={{
+                        padding: '10px',
+                        overflowY: 'auto',
+                        flexGrow: 1
+                    }}>
+                        <h2 style={{fontSize: '18px', marginBottom: '15px'}}>場所リスト</h2>
+                        
+                        {/* 場所リスト */}
+                        <div style={{marginBottom: '20px'}}>
+                            {locations.map((loc) => (
+                                <div 
+                                    key={loc.id}
+                                    onClick={() => setSelectedLocation(loc)}
+                                    style={{
+                                        padding: '10px',
+                                        marginBottom: '10px',
+                                        backgroundColor: selectedLocation?.id === loc.id ? '#e3f2fd' : '#fff',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (selectedLocation?.id !== loc.id) {
+                                            e.currentTarget.style.backgroundColor = '#f5f5f5';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (selectedLocation?.id !== loc.id) {
+                                            e.currentTarget.style.backgroundColor = '#fff';
+                                        }
+                                    }}
+                                >
+                                    <strong style={{display: 'block', marginBottom: '5px'}}>{loc.title}</strong>
+                                    {loc.eraStart && (
+                                        <small style={{color: '#666'}}>
+                                            {loc.eraStart}年 {loc.eraEnd && loc.eraEnd !== 9999 ? `- ${loc.eraEnd}年` : ''}
+                                        </small>
+                                    )}
+                                </div>
+                            ))}
                         </div>
 
+                        {/* 選択された場所の詳細 */}
+                        {selectedLocation && (
+                            <div style={{
+                                marginTop: '20px',
+                                padding: '15px',
+                                backgroundColor: '#f9f9f9',
+                                border: '2px solid #2196F3',
+                                borderRadius: '8px'
+                            }}>
+                                <h3 style={{fontSize: '16px', marginBottom: '10px', color: '#2196F3'}}>
+                                    {selectedLocation.title}
+                                </h3>
+                                
+                                {/* 画像表示エリア */}
+                                <div style={{
+                                    width: '100%',
+                                    height: '200px',
+                                    backgroundColor: '#e0e0e0',
+                                    borderRadius: '5px',
+                                    marginBottom: '10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#999'
+                                }}>
+                                    {/* TODO: 画像URLを追加したらここに表示 */}
+                                    画像エリア
+                                </div>
 
-                        {/* 地形図/航空写真切り替えボタン */}
-                        <button onClick={toggleTopoMap} style={{
-                            margin: '10px'
-                        }}>
-                            {isTopoMap ? '航空写真' : '地形図'}
-                        </button>
+                                {/* 説明文 */}
+                                <div style={{marginBottom: '10px'}}>
+                                    <strong>概要:</strong>
+                                    <p style={{margin: '5px 0', color: '#555'}}>
+                                        {selectedLocation.abst || '説明なし'}
+                                    </p>
+                                </div>
+
+                                {selectedLocation.detail && (
+                                    <div>
+                                        <strong>詳細:</strong>
+                                        <p style={{margin: '5px 0', color: '#555'}}>
+                                            {selectedLocation.detail}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div style={{marginTop: '10px', fontSize: '12px', color: '#888'}}>
+                                    座標: {selectedLocation.lat.toFixed(5)}, {selectedLocation.lng.toFixed(5)}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

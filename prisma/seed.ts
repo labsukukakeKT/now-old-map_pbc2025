@@ -22,6 +22,15 @@ async function main() {
             abst: '旧東京工業大学です。',
             detail: '昔は蔵前にあったらしいよ。'
         }
+                {
+            title: '世にも奇妙な池',
+            lat: 35.601914,
+            lng: 139.690719,
+            eraStart: 1424,
+            eraEnd: 9999,
+            abst: '足を洗う行け',
+            detail: 'いやん、足がきれいになっちゃう'
+        }
     ];
 
 
