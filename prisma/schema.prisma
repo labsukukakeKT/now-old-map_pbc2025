@@ -11,13 +11,25 @@ generator client {
 
 
 model Location {
-  id        Int       @id @default(autoincrement())
+  id        Int       @id @default(autoincrement()) //自動で追加しますよ
   title     String
-  lat       Float
-  lng       Float
-  eraStart  Int?
-  eraEnd    Int?
-  abst      String?
-  detail    String?
+  lat       Float //イド
+  lng       Float //けいど
+  eraStart  Int? //年代スタート
+  eraEnd    Int? //年代エンド(いまないかも)
+  abst      String? //概要
+  detail    String? //詳細
+  createdAt DateTime  @default(now())
+}
+
+model Post {
+  id        Int       @id @default(autoincrement()) //自動で追加しますよ
+  title     String
+  lat       Float //イド
+  lng       Float //けいど
+  eraStart  Int? //年代スタート
+  eraEnd    Int? //年代エンド(いまないかも)
+  abst      String? //概要
+  detail    String? //詳細
   createdAt DateTime  @default(now())
 }
