@@ -1,0 +1,6 @@
+                </button>
+                <div className="mb-8">
+                    <PostButton />
+                </div>
+
+                import PostButton from '@/components/PostButton'

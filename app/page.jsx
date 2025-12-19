@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
+import PostButton from '@/components/PostButton'
 
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
