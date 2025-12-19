@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
+import HunbergerButton from "@/components/HunbergerButton";
 
 const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 const MarkerLayer = dynamic(() => import("@/components/MarkerLayer"), { ssr: false });
@@ -152,3 +153,91 @@ export default function Home() {
   );
 }
 
+                
+            {/* サイドバー */}
+            <div style={{
+                position: 'absolute',
+                width: slidebar_width, // 幅を動的に変更
+                height: 'calc(100% - 80px)', // ヘッダーバーの分引く
+                zIndex: 10,
+                overflowY: isSlidebarOpen ? 'auto' : 'hidden',
+                backgroundColor: '#f9f9f9',
+                padding: 0,
+                transition: 'width 0.3s ease', // 開閉アニメーション
+                display: 'flex',
+                flexDirection: 'column',
+            }}>
+                
+                {/* サイドバーの開閉ボタン */}
+                {/* <button onClick={toggleSidebar} style={{
+                    width: '60px',
+                    height: '40px',
+                    margin: '10px'
+                }}>
+                    Click Me
+                </button> */}
+                <HunbergerButton onClick={toggleSidebar} />
+                
+                {/* サイドバーのコンテンツ */}
+                {isSlidebarOpen && (
+                    <div>
+                        <div style={{
+                            padding: '10px',
+                            overflowY: 'auto',
+                            flexGrow: 1
+                        }}>
+                            <LocationDetail location={selectedLocation} />
+                            
+                        </div>
+                        <div className="mb-8">
+                            <PostButton />
+                        </div>
+                    </div>
+                )}
+                
+                
+
+            </div>
+
+
+            {/* マップとスライドバーのエリア */}
+            <div style={{
+                gridColumn: '2 / 3',
+                width: '100%',
+                height: '100%',
+                zIndex: 0,
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column', // 上下に並べる
+            }}>
+
+                <div style={{
+                    height: '70px', // Pipsを表示するため少し高めに設定
+                    width: '75%',
+                    marginLeft: 'auto',
+                    backgroundColor: '#fff',
+                    borderBottom: '1px solid #ddd',
+                    paddingTop: '30px', // ツールチップの重なり防止
+                }}>
+                    <YearSlider onChange={setSelectedYear} />
+                </div>
+
+
+                {/* マップエリア */}
+                <div style={{
+                    flexGrow: 1, // 残りの高さをすべて使う
+                    width: '100%',
+                    position: 'relative',
+                    zIndex: 0,
+                }}>
+                    <Map>
+                        <MarkerLayer 
+                            locations={locations} 
+                            onLocationSelect={handleLocationSelect}
+                        />
+                    </Map>
+                </div>
+            </div>
+        </main>
+    );
+}
