@@ -1,0 +1,270 @@
+/* global box-sizing and simple reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ...existing basic form styles ... */
+.place-info-editor {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 960px;
+}
+
+.pie-row { display: grid; gap: 8px; }
+.pie-label { font-weight: 600; color: #222; }
+.pie-input, .pie-textarea {
+  width: 100%;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #fff;
+  color: #24292f;
+}
+.pie-input:disabled, .pie-textarea:disabled { background: #f6f8fa; color: #8c959f; }
+.pie-textarea { resize: vertical; min-height: 160px; }
+.pie-flex-row { display: flex; gap: 12px; }
+.pie-flex-item { flex: 1; min-width: 0; }
+.pie-help { font-size: 12px; color: #57606a; }
+
+/* layout variables */
+:root { --gap: 16px; --upper-height: 300px; }
+
+/* container */
+.ppe-container { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+
+/* left editor area uses runtime-computed available height (set via inline CSS variable) */
+.ppe-left {
+  flex: 1 1 540px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  /* use runtime variable if provided, otherwise fallback */
+  height: var(--available-height, calc(100vh - 48px));
+  padding-bottom: 24px;
+  box-sizing: border-box;
+}
+
+/* right column */
+.ppe-right { width: 360px; min-width: 260px; }
+
+/* upper area: three columns */
+.ppe-upper {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+.ppe-inputs { flex: 1 1 280px; min-width: 220px; display: flex; flex-direction: column; gap: 8px; }
+
+/* image: square using shared upper height; title via ::after */
+.ppe-image { width: var(--upper-height); min-width: 160px; display: flex; align-items: stretch; }
+.ppe-image-box {
+  width: var(--upper-height);
+  height: var(--upper-height);
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 6px;
+  position: relative;
+}
+.ppe-image-box::after {
+  content: "Image preview";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  text-align: center;
+  font-size: 12px;
+  color: #444;
+  pointer-events: none;
+}
+.ppe-image-el { max-width: 100%; max-height: 100%; object-fit: contain; }
+.ppe-image-placeholder { color: #999; text-align: center; padding: 12px; }
+
+/* map */
+.ppe-map { width: 420px; min-width: 280px; }
+.ppe-map-wrap { height: var(--upper-height); border-radius: 8px; overflow: hidden; position: relative; }
+.ppe-center-indicator { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 7px; background: red; border: 2px solid white; }
+
+/* lower area */
+.ppe-lower {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* editor and preview columns must both stretch to fill vertical space */
+.ppe-lower-editor {
+  flex: 1 1 320px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.editor-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* toolbar styling (modern compact look) */
+.ppe-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #e6e6e6;
+  flex-wrap: wrap;
+}
+.ppe-toolbar button {
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.ppe-toolbar button:hover {
+  background: rgba(27,31,35,0.06);
+}
+
+/* make textarea take remaining space inside the card and scroll internally */
+.editor-card .ppe-textarea {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: none;
+  outline: none;
+  padding: 12px;
+  resize: none;
+  overflow: auto;
+  background: transparent;
+}
+
+/* preview-body should equal editor-card height and scroll internally */
+.ppe-lower-preview { display: flex; flex-direction: column; width: 420px; min-width: 260px; min-height: 0; }
+.ppe-preview-body {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  overflow: auto;
+  background: #fff;
+}
+
+/* helper line sits outside of the editor-card so preview matches editor-card height */
+.pie-help { margin-top: 8px; }
+
+/* helper moved below the lower area (does not affect column heights) */
+.ppe-lower-help {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #57606a;
+  padding-left: 2px;
+}
+
+/* footer: helper text at left, submit button aligned under preview at right */
+.ppe-lower-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  box-sizing: border-box;
+}
+
+/* helper text expands */
+.ppe-lower-footer .footer-left {
+  flex: 1 1 auto;
+  color: #57606a;
+  font-size: 12px;
+}
+
+/* right column matches preview width so the button aligns under the preview pane */
+.ppe-lower-footer .footer-right {
+  width: 420px;
+  min-width: 260px;
+  display: flex;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  padding-left: 12px;
+  padding-right: 4px;
+}
+
+/* small screen: footer stacks but button stays right-aligned within full width */
+@media (max-width: 980px) {
+  .ppe-lower-footer .footer-right {
+    width: 100%;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* small screens: stacked layout still allows internal scrolling */
+@media (max-width: 980px) {
+  .ppe-map, .ppe-lower-preview, .ppe-image { width: 100%; min-width: 0; }
+  .ppe-image-box { aspect-ratio: 1/1; height: auto; width: 100%; }
+  .ppe-right { width: 100%; }
+  .ppe-preview-body { max-height: 360px; }
+}
+
+/* modern blue button styles */
+.btn-primary {
+  /* modern blue gradient */
+  background: linear-gradient(180deg, #0b5fff 0%, #0061e0 100%);
+  color: #fff;
+  border: 0;
+  padding: 9px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(11,95,255,0.14), 0 1px 2px rgba(0,0,0,0.04);
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* hover/active/focus states */
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(11,95,255,0.18), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(11,95,255,0.12);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(11,95,255,0.12), 0 6px 18px rgba(11,95,255,0.14);
+  border-radius: 8px;
+}
+
+/* disabled state */
+.btn-primary:disabled,
+.btn-primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
