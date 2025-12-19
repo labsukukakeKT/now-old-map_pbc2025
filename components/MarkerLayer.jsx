@@ -24,8 +24,8 @@ export default function MarkerLayer({ locations, onLocationSelect }) {
     return (
         <MarkerClusterGroup>
             {locations.map((loc) => {
-              const lat = loc.latitude || loc.lattitude;
-              const lng = loc.longitude || loc.lng;
+              const lat = loc.lat;
+              const lng = loc.lng;
               
               if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
                 return null;
