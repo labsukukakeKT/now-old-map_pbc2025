@@ -1,23 +1,43 @@
-// データベース接続設定 (Supabaseなど)
-datasource db {
-  provider = "postgresql" // SupabaseはPostgreSQL
-  url      = env("DATABASE_URL")
-}
-
-// Prisma Client生成設定
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-model Location {
-  id        Int       @id @default(autoincrement())
-  title     String
-  lat       Float
-  lng       Float
-  eraStart  Int?
-  eraEnd    Int?
-  abst      String?
-  detail    String?
-  createdAt DateTime  @default(now())
+model place_DB {
+  place_id          Int       @id @default(autoincrement())
+  lattitude         Float
+  longitude         Float
+  place_name        String
+  place_description String?
+  place_photo_url   String?
+  place_era_start   DateTime?
+  place_era_end     DateTime? @default(now())
+  post              post[]
+}
+
+model post {
+  post_id       Int      @id @default(autoincrement())
+  user_id       Int
+  place_id      Int
+  description   String
+  user_photo    String?
+  photo_url     String?
+  uploaded_date DateTime @default(now())
+  place_DB      place_DB @relation(fields: [place_id], references: [place_id])
+  user_DB       user_DB  @relation(fields: [user_id], references: [user_id])
+
+  @@index([place_id])
+  @@index([user_id])
+}
+
+model user_DB {
+  user_id          Int     @id @default(autoincrement())
+  user_name        String
+  user_description String?
+  user_photo_url   String?
+  post             post[]
 }
