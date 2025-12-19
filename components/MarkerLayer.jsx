@@ -9,22 +9,17 @@ export default function MarkerLayer({ locations }) {
     return null;
   }
 
-  const safeLocations =
-    Array.isArray(locations) ? locations
-    : Array.isArray(locations?.locations) ? locations.locations
-    : [];
-
-  return (
-    <MarkerClusterGroup>
-      {safeLocations.map((loc) => (
-        <Marker key={loc.id} position={[loc.lat, loc.lng]}>
-          <Popup>
-            <strong>{loc.title}</strong>
-            <br />
-            {loc.abst}
-          </Popup>
-        </Marker>
-      ))}
-    </MarkerClusterGroup>
-  );
+    return (
+        <MarkerClusterGroup>
+            {locations.map((loc) => (
+                <Marker key={loc.id} position={[loc.lattitude, loc.longitude]}>
+                    <Popup>
+                        <strong>{loc.place_name}</strong>
+                        <br />
+                        {loc.place_description}
+                    </Popup>
+                </Marker>
+            ))}
+        </MarkerClusterGroup>
+    );
 }
