@@ -1,184 +1,134 @@
-'use client'
+'use client';
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 
 const Map = dynamic(() => import("@/components/Map"), {
-    ssr: false,
+  ssr: false,
 });
 
 const MarkerLayer = dynamic(() => import("@/components/MarkerLayer"), {
-    ssr: false,
+  ssr: false,
 });
 
-
-
-// サイドバーの幅
-const SLIDEBAR_OPNE_WIDTH = '400px';
+const SLIDEBAR_OPEN_WIDTH = '400px';
 const SLIDEBAR_CLOSED_WIDTH = '80px';
 
-// 地図のURL
-// const TOPO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png";
-// const PHOTO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg";
-
 export default function Home() {
-    // 場所データを保持するステート
-    const [locations, setLocations] = useState([]);
-    // マウント時にAPIからデータの取得
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const response = await fetch('/api/locations');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch: ${response.status}`);
-                }
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    setLocations(data);
-                } else if (Array.isArray(data?.locations)) {
-                    // API が { locations: [...] } の場合にも対応
-                    setLocations(data.locations);
-                } else {
-                    setLocations([]);
-                }
-            } catch (error) {
-                console.error('fetch locations error', error);
-                setLocations([]);
-            }
-        };
-        fetchLocations();
-    }, [])
+  const [locations, setLocations] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [isSlidebarOpen, setIsSlidebarOpen] = useState(false);
+  const [isSatellite, setIsSatellite] = useState(false);
 
-    // 配列でなければ空配列にフォールバック
-    const safeLocations = Array.isArray(locations) ? locations : [];
-
-
-    // サイドバー開閉の状態の管理
-    const [isSlidebarOpen, setIsSlidebarOpen] = useState(false);
-    function toggleSidebar() {
-        setIsSlidebarOpen(!isSlidebarOpen);
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const res = await fetch('/api/locations');
+        const data = await res.json();
+        setLocations(Array.isArray(data) ? data : data.locations || []);
+      } catch (err) {
+        console.error('Failed to fetch locations', err);
+        setLocations([]);
+      }
     };
-    let slidebar_width;
-    if (isSlidebarOpen) {
-        slidebar_width = SLIDEBAR_OPNE_WIDTH;
-    } else {
-        slidebar_width = SLIDEBAR_CLOSED_WIDTH;
-    }
+    fetchLocations();
+  }, []);
 
-    // 選択された場所の管理
-    const [selectedLocation, setSelectedLocation] = useState(null);
+  const toggleSidebar = () => setIsSlidebarOpen(!isSlidebarOpen);
+  const handleLocationSelect = (loc) => {
+    setSelectedLocation(loc);
+    setIsSlidebarOpen(true);
+  };
 
-    // スライドバーの状態管理
-    const [selectedYear, setSelectedYear] = useState(2025);
-    
-    // マーカークリック時の処理
-    const handleLocationSelect = (location) => {
-        setSelectedLocation(location);
-        setIsSlidebarOpen(true); // サイドバーを自動で開く
-    };
-    
+  const toggleMapLayer = () => setIsSatellite(!isSatellite);
+  const tileLayerUrl = isSatellite
+    ? "https://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg"
+    : "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png";
 
-    // 地形図/航空写真の切り替え
-    // const [isTopoMap, setIsTopleMap] = useState(true);
-    // function toggleTopoMap() {
-    //     setIsTopleMap(!isTopoMap);
-    // };
-    // let tile_url;
-    // if (isTopoMap) {
-    //     tile_url = TOPO_TILE_URL;
-    // } else {
-    //     tile_url = PHOTO_TILE_URL;
-    // }
+  const slidebarWidth = isSlidebarOpen ? SLIDEBAR_OPEN_WIDTH : SLIDEBAR_CLOSED_WIDTH;
 
-
-    return (
-        <main style={{
-            display: 'grid',
-            height: '100%',
-            width: '100%',
-            gridTemplateColumns: `${SLIDEBAR_CLOSED_WIDTH} 1fr`,
-            overflow: 'hidden',
+  return (
+    <main style={{
+      display: 'grid',
+      height: '100%',
+      width: '100%',
+      gridTemplateColumns: `${SLIDEBAR_CLOSED_WIDTH} 1fr`,
+      overflow: 'hidden',
+    }}>
+      {/* サイドバー */}
+      <div style={{
+        position: 'absolute',
+        width: slidebarWidth,
+        height: 'calc(100% - 80px)',
+        zIndex: 10,
+        overflowY: isSlidebarOpen ? 'auto' : 'hidden',
+        backgroundColor: '#f9f9f9',
+        transition: 'width 0.3s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '10px'
+      }}>
+        {/* Click Me ボタン */}
+        <button onClick={toggleSidebar} style={{
+          width: '60px',
+          height: '40px',
+          marginBottom: '10px'
         }}>
+          Click Me
+        </button>
 
-                
-            {/* サイドバー */}
-            <div style={{
-                position: 'absolute',
-                width: slidebar_width, // 幅を動的に変更
-                height: 'calc(100% - 80px)', // ヘッダーバーの分引く
-                zIndex: 10,
-                overflowY: isSlidebarOpen ? 'auto' : 'hidden',
-                backgroundColor: '#f9f9f9',
-                padding: 0,
-                transition: 'width 0.3s ease', // 開閉アニメーション
-                display: 'flex',
-                flexDirection: 'column',
-            }}>
-                
-                {/* サイドバーの開閉ボタン */}
-                <button onClick={toggleSidebar} style={{
-                    width: '60px',
-                    height: '40px',
-                    margin: '10px'
-                }}>
-                    Click Me
-                </button>
+        {/* 地図切り替えボタン */}
+        <button onClick={toggleMapLayer} style={{
+          padding: '6px 10px',
+          backgroundColor: 'white',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          marginBottom: '10px'
+        }}>
+          {isSatellite ? '標準地図' : '航空写真'}
+        </button>
 
-                
-                {/* サイドバーのコンテンツ */}
-                {isSlidebarOpen && (
-                    <div style={{
-                        padding: '10px',
-                        overflowY: 'auto',
-                        flexGrow: 1
-                    }}>
-                        <LocationDetail location={selectedLocation} />
-                    </div>
-                )}
+        {/* 詳細情報パネル */}
+        {isSlidebarOpen && (
+          <div style={{ flexGrow: 1, overflowY: 'auto' }}>
+            <LocationDetail location={selectedLocation} />
+          </div>
+        )}
+      </div>
 
+      {/* メインビュー */}
+      <div style={{
+        gridColumn: '2 / 3',
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        {/* スライダー */}
+        <div style={{
+          height: '70px',
+          width: '75%',
+          marginLeft: 'auto',
+          backgroundColor: '#fff',
+          borderBottom: '1px solid #ddd',
+          paddingTop: '30px',
+        }}>
+          <YearSlider onChange={setSelectedYear} />
+        </div>
 
-            </div>
-
-
-            {/* マップとスライドバーのエリア */}
-            <div style={{
-                gridColumn: '2 / 3',
-                width: '100%',
-                height: '100%',
-                zIndex: 0,
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column', // 上下に並べる
-            }}>
-
-                <div style={{
-                    height: '70px', // Pipsを表示するため少し高めに設定
-                    width: '75%',
-                    marginLeft: 'auto',
-                    backgroundColor: '#fff',
-                    borderBottom: '1px solid #ddd',
-                    paddingTop: '30px', // ツールチップの重なり防止
-                }}>
-                    <YearSlider onChange={setSelectedYear} />
-                </div>
-
-
-                {/* マップエリア */}
-                <div style={{
-                    flexGrow: 1, // 残りの高さをすべて使う
-                    width: '100%',
-                    position: 'relative',
-                    zIndex: 0,
-                }}>
-                    <Map>
-                        <MarkerLayer 
-                            locations={locations} 
-                            onLocationSelect={handleLocationSelect}
-                        />
-                    </Map>
-                </div>
-            </div>
-        </main>
-    );
+        {/* 地図 */}
+        <div style={{ flexGrow: 1, width: '100%', position: 'relative' }}>
+          <Map tileLayerUrl={tileLayerUrl}>
+            <MarkerLayer locations={locations} onLocationSelect={handleLocationSelect} />
+          </Map>
+        </div>
+      </div>
+    </main>
+  );
 }
