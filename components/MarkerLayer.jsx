@@ -89,6 +89,7 @@ export default function MarkerLayer({ locations, onLocationSelect }) {
   }, []);
 
   return (
+    <>
       <MarkerClusterGroup>
         {locations.map((loc) => {
               const lat = loc.lat;
