@@ -1,4 +1,6 @@
 // import Script from "next/script";
+import MenuBar from "@/components/MenuBar";
+
 
 export const metadata = {
     title: '今昔マップ',
@@ -14,25 +16,15 @@ export default function RootLayout({ children }) {
                 {/* <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" /> */}
                 {/* <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" /> */}
             </head>
-            <body style={{margin: '0', padding: '0'}}>
-                <div style={{
-                    width: '100vw',
-                    height: '100vh',
-                    overflow: 'hidden',
-                    display: 'grid',
-                    gridTemplateRows: '80px 1fr',
-                }}>
-                    {/* タイトル・ヘッダー */}
-                    <div style={{gridRow: '1 / 2',}}>
-                        <h1>今昔マップ</h1>
-                    </div>
+           <body style={{ margin: 0, padding: 0 }}>
+  <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <MenuBar />
+    <div style={{ flex: 1, overflow: "hidden" }}>
+      {children}
+    </div>
+  </div>
+</body>
 
-                    {/* メインコンテンツ、この中にpage.jsxがはいる */}
-                    <div style={{gridRow: '2 / 3', width: '100%', height: '100%'}}>
-                        {children}
-                    </div>
-                </div>
-            </body>
         </html>
     )
 }

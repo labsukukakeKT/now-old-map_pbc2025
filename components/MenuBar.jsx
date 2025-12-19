@@ -1,35 +1,35 @@
-'use client';
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const tabs = [
-  { href: "/", label: "ホーム" },
-  { href: "/account", label: "アカウント" },
-];
-
 export default function MenuBar() {
   const pathname = usePathname();
 
+  const isHome = pathname === "/";
+  const isAccount = pathname === "/account";
+
   return (
     <header style={styles.header}>
-      <nav style={styles.nav}>
-        {tabs.map((t) => {
-          const active = pathname === t.href;
-          return (
-            <Link
-              key={t.href}
-              href={t.href}
-              style={{
-                ...styles.tab,
-                ...(active ? styles.activeTab : {}),
-              }}
-            >
-              {t.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <div style={styles.inner}>
+        {/* 左：ホーム */}
+        <Link href="/" style={{ ...styles.boxBtn, ...(isHome ? styles.active : {}) }} aria-label="ホーム">
+          🏠
+        </Link>
+
+        {/* 中央：タイトル */}
+        <div style={styles.titleWrap}>
+          <div style={styles.title}>Now - Old Map</div>
+        </div>
+
+        {/* 右：アカウント */}
+        <Link
+          href="/account"
+          style={{ ...styles.boxBtn, ...(isAccount ? styles.active : {}) }}
+        >
+          アカウント
+        </Link>
+      </div>
     </header>
   );
 }
@@ -40,26 +40,49 @@ const styles = {
     top: 0,
     zIndex: 50,
     background: "rgba(20,20,20,0.9)",
-    borderBottom: "1px solid rgba(255,255,255,0.1)",
+    borderBottom: "1px solid rgba(255,255,255,0.12)",
   },
-  nav: {
-    height: 52,
+  inner: {
+    height: 64,
     display: "flex",
-    gap: 8,
     alignItems: "center",
     padding: "0 16px",
-    maxWidth: 1100,
-    margin: "0 auto",
+    gap: 12,
   },
-  tab: {
-    padding: "8px 12px",
+
+  // 左右の四角ボタン
+  boxBtn: {
+    width: 64,
+    height: 44,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 10,
     textDecoration: "none",
-    color: "rgba(255,255,255,0.7)",
-    fontSize: 14,
+    color: "rgba(255,255,255,0.85)",
+    border: "1px solid rgba(255,255,255,0.18)",
+    background: "rgba(255,255,255,0.06)",
+    fontSize: 18, // ← ここで文字・アイコンの大きさ
+    flex: "0 0 auto",
   },
-  activeTab: {
+
+  // 真ん中のタイトル領域（左右に押されても中央に固定）
+  titleWrap: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 700,
+    color: "rgba(255,255,255,0.95)",
+    letterSpacing: 0.5,
+  },
+
+  // アクティブ時の強調
+  active: {
+    background: "rgba(255,255,255,0.16)",
+    border: "1px solid rgba(255,255,255,0.35)",
     color: "#fff",
-    background: "rgba(255,255,255,0.12)",
   },
 };
