@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import YearSlider from "@/components/YearSlider";
+import LocationDetail from "@/components/LocationDetail";
 
 const Map = dynamic(() => import("@/components/Map"), {
     ssr: false,
@@ -132,90 +133,7 @@ export default function Home() {
                         overflowY: 'auto',
                         flexGrow: 1
                     }}>
-                        {selectedLocation ? (
-                            // 選択中は「詳細のみ」を表示
-                            <div style={{
-                                marginTop: '0',
-                                padding: '15px',
-                                backgroundColor: '#f9f9f9',
-                                border: '2px solid #2196F3',
-                                borderRadius: '8px'
-                            }}>
-                                <h3 style={{fontSize: '16px', margin: 0, color: '#2196F3'}}>
-                                    {selectedLocation.place_name}
-                                </h3>
-
-                                {/* 画像表示エリア */}
-                                <div style={{
-                                    width: '100%',
-                                    height: '200px',
-                                    backgroundColor: '#e0e0e0',
-                                    borderRadius: '5px',
-                                    margin: '10px 0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#999'
-                                }}>
-                                    {selectedLocation.place_photo_url ? (
-                                        <img src={selectedLocation.place_photo_url} alt={selectedLocation.place_name} style={{maxWidth: '100%', maxHeight: '100%'}} />
-                                    ) : (
-                                        '画像エリア'
-                                    )}
-                                </div>
-
-                                {/* 説明文 */}
-                                <div style={{marginBottom: '10px'}}>
-                                    <strong>概要:</strong>
-                                    <p style={{margin: '5px 0', color: '#555'}}>
-                                        {selectedLocation.place_description || '説明なし'}
-                                    </p>
-                                </div>
-
-                                <div style={{marginTop: '10px', fontSize: '12px', color: '#888'}}>
-                                    座標: {selectedLocation.lattitude?.toFixed(5) || 'N/A'}, {selectedLocation.longitude?.toFixed(5) || 'N/A'}
-                                </div>
-                            </div>
-                        ) : (
-                            // 未選択時はリストを表示
-                            <>
-                                <h2 style={{fontSize: '18px', marginBottom: '15px'}}>場所リスト</h2>
-                                <div style={{marginBottom: '20px'}}>
-                                    {safeLocations.map((loc) => (
-                                        <div 
-                                            key={loc.place_id}
-                                            onClick={() => setSelectedLocation(loc)}
-                                            style={{
-                                                padding: '10px',
-                                                marginBottom: '10px',
-                                                backgroundColor: selectedLocation?.place_id === loc.place_id ? '#e3f2fd' : '#fff',
-                                                border: '1px solid #ddd',
-                                                borderRadius: '5px',
-                                                cursor: 'pointer',
-                                                transition: 'background-color 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                if (selectedLocation?.place_id !== loc.place_id) {
-                                                    e.currentTarget.style.backgroundColor = '#f5f5f5';
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (selectedLocation?.place_id !== loc.place_id) {
-                                                    e.currentTarget.style.backgroundColor = '#fff';
-                                                }
-                                            }}
-                                        >
-                                            <strong style={{display: 'block', marginBottom: '5px'}}>{loc.place_name}</strong>
-                                            {loc.place_era_start && (
-                                                <small style={{color: '#666'}}>
-                                                    {loc.place_era_start}年 {loc.place_era_end && loc.place_era_end !== 9999 ? `- ${loc.place_era_end}年` : ''}
-                                                </small>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
+                        <LocationDetail location={selectedLocation} />
                     </div>
                 )}
 
@@ -254,7 +172,10 @@ export default function Home() {
                     zIndex: 0,
                 }}>
                     <Map>
-                        <MarkerLayer locations={locations} />
+                        <MarkerLayer 
+                            locations={locations} 
+                            onLocationSelect={handleLocationSelect}
+                        />
                     </Map>
                 </div>
             </div>
