@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
+import HunbergerButton from "@/components/HunbergerButton";
 
 const Map = dynamic(() => import("@/components/Map"), {
     ssr: false,
@@ -118,13 +119,14 @@ export default function Home() {
             }}>
                 
                 {/* サイドバーの開閉ボタン */}
-                <button onClick={toggleSidebar} style={{
+                {/* <button onClick={toggleSidebar} style={{
                     width: '60px',
                     height: '40px',
                     margin: '10px'
                 }}>
                     Click Me
-                </button>
+                </button> */}
+                <HunbergerButton onClick={toggleSidebar} />
                 
                 {/* サイドバーのコンテンツ */}
                 {isSlidebarOpen && (
