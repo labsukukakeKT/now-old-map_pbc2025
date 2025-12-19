@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
+import PostButton from '@/components/PostButton'
 
 const Map = dynamic(() => import("@/components/Map"), {
     ssr: false,
@@ -124,19 +125,25 @@ export default function Home() {
                 }}>
                     Click Me
                 </button>
-
                 
                 {/* サイドバーのコンテンツ */}
                 {isSlidebarOpen && (
-                    <div style={{
-                        padding: '10px',
-                        overflowY: 'auto',
-                        flexGrow: 1
-                    }}>
-                        <LocationDetail location={selectedLocation} />
+                    <div>
+                        <div style={{
+                            padding: '10px',
+                            overflowY: 'auto',
+                            flexGrow: 1
+                        }}>
+                            <LocationDetail location={selectedLocation} />
+                            
+                        </div>
+                        <div className="mb-8">
+                            <PostButton />
+                        </div>
                     </div>
                 )}
-
+                
+                
 
             </div>
 
