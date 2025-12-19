@@ -1,6 +1,7 @@
 'use client'
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
+import YearSlider from "@/components/YearSlider";
 
 const Map = dynamic(() => import("@/components/Map"), {
     ssr: false,
@@ -66,6 +67,9 @@ export default function Home() {
 
     // 選択された場所の管理
     const [selectedLocation, setSelectedLocation] = useState(null);
+
+    // スライドバーの状態管理
+    const [selectedYear, setSelectedYear] = useState(2025);
     
     // マーカークリック時の処理
     const handleLocationSelect = (location) => {
@@ -219,17 +223,40 @@ export default function Home() {
             </div>
 
 
-            {/* マップエリア */}
+            {/* マップとスライドバーのエリア */}
             <div style={{
                 gridColumn: '2 / 3',
                 width: '100%',
                 height: '100%',
                 zIndex: 0,
                 position: 'relative',
+                display: 'flex',
+                flexDirection: 'column', // 上下に並べる
             }}>
-                <Map>
-                    <MarkerLayer locations={locations} onLocationSelect={handleLocationSelect} />
-                </Map>
+
+                <div style={{
+                    height: '70px', // Pipsを表示するため少し高めに設定
+                    width: '75%',
+                    marginLeft: 'auto',
+                    backgroundColor: '#fff',
+                    borderBottom: '1px solid #ddd',
+                    paddingTop: '30px', // ツールチップの重なり防止
+                }}>
+                    <YearSlider onChange={setSelectedYear} />
+                </div>
+
+
+                {/* マップエリア */}
+                <div style={{
+                    flexGrow: 1, // 残りの高さをすべて使う
+                    width: '100%',
+                    position: 'relative',
+                    zIndex: 0,
+                }}>
+                    <Map>
+                        <MarkerLayer locations={locations} />
+                    </Map>
+                </div>
             </div>
         </main>
     );
