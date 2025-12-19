@@ -51,7 +51,7 @@ export default function Home() {
         };
         fetchLocations();
     }, [])
-
+    const [isSatellite, setIsSatellite] = useState(false);
     // 配列でなければ空配列にフォールバック
     const safeLocations = Array.isArray(locations) ? locations : [];
 
@@ -78,6 +78,9 @@ export default function Home() {
     const handleLocationSelect = (location) => {
         setSelectedLocation(location);
         setIsSlidebarOpen(true); // サイドバーを自動で開く
+    };
+    const toggleMapLayer = () => {
+        setIsSatellite(!isSatellite);
     };
     
 
@@ -119,14 +122,22 @@ export default function Home() {
             }}>
                 
                 {/* サイドバーの開閉ボタン */}
-                {/* <button onClick={toggleSidebar} style={{
-                    width: '60px',
-                    height: '40px',
-                    margin: '10px'
-                }}>
-                    Click Me
-                </button> */}
                 <HunbergerButton onClick={toggleSidebar} />
+                <div>
+                    <button
+                      onClick={toggleMapLayer}
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        fontWeight: 'bold',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {isSatellite ? '標準地図' : '航空写真'}
+                    </button>
+                </div>
+                
                 
                 {/* サイドバーのコンテンツ */}
                 {isSlidebarOpen && (
@@ -180,7 +191,7 @@ export default function Home() {
                     position: 'relative',
                     zIndex: 0,
                 }}>
-                    <Map>
+                    <Map isSatellite={isSatellite}>
                         <MarkerLayer 
                             locations={locations} 
                             onLocationSelect={handleLocationSelect}

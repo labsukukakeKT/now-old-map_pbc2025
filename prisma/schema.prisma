@@ -40,8 +40,8 @@ model user_DB {
 
 model place_DB {
   place_id           Int      @id @default(autoincrement())
-  lattitude          Float
-  longitude          Float
+  lat          Float
+  lng          Float
   place_name         String
   place_description  String?
   place_photo_url    String?
