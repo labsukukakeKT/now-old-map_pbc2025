@@ -26,12 +26,30 @@ export default function Home() {
     // マウント時にAPIからデータの取得
     useEffect(() => {
         const fetchLocations = async () => {
-            const response = await fetch('/api/locations');
-            const data = await response.json();
-            setLocations(data);
+            try {
+                const response = await fetch('/api/locations');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setLocations(data);
+                } else if (Array.isArray(data?.locations)) {
+                    // API が { locations: [...] } の場合にも対応
+                    setLocations(data.locations);
+                } else {
+                    setLocations([]);
+                }
+            } catch (error) {
+                console.error('fetch locations error', error);
+                setLocations([]);
+            }
         };
         fetchLocations();
     }, [])
+
+    // 配列でなければ空配列にフォールバック
+    const safeLocations = Array.isArray(locations) ? locations : [];
 
 
     // サイドバー開閉の状態の管理
@@ -108,7 +126,7 @@ export default function Home() {
                         
                         {/* 場所リスト */}
                         <div style={{marginBottom: '20px'}}>
-                            {locations.map((loc) => (
+                            {safeLocations.map((loc) => (
                                 <div 
                                     key={loc.id}
                                     onClick={() => setSelectedLocation(loc)}
