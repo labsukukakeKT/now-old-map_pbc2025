@@ -4,9 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { href: "/", label: "ホーム" },
+  { href: "/", label: "ホーム", icon: "🏠" },
   { href: "/account", label: "アカウント" },
 ];
+
+
 
 export default function MenuBar() {
   const pathname = usePathname();
@@ -25,7 +27,7 @@ export default function MenuBar() {
                 ...(active ? styles.activeTab : {}),
               }}
             >
-              {t.label}
+         {t.icon ? t.icon : t.label}
             </Link>
           );
         })}
@@ -56,7 +58,7 @@ const styles = {
     borderRadius: 10,
     textDecoration: "none",
     color: "rgba(255,255,255,0.7)",
-    fontSize: 14,
+    fontSize: 22,
   },
   activeTab: {
     color: "#fff",
