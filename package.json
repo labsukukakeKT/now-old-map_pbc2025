@@ -42,7 +42,7 @@
     "nouislider": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-leaflet": "^4.3.1",
+    "react-leaflet": "^4.2.1",
     "react-leaflet-cluster": "^2.1.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
@@ -66,5 +66,11 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "volta": {
+    "node": "24.11.0"
+  },
+  "engines": {
+    "node": ">=24.11.0"
   }
 }
