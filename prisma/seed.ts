@@ -15,13 +15,14 @@ async function main() {
       place_era_end: null,
     },
     {
+      place_id: 2,
       place_name: '東京科学大学大岡山キャンパス',
       lattitude: 35.60485178683271,
       longitude: 139.68385410808457,
       place_description: '旧東京工業大学です。',
       place_photo_url: null,
       place_era_start: 1924,
-      place_era_end: ,
+      place_era_end: 0,
     },
   ]
 

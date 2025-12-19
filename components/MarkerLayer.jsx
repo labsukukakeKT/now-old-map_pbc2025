@@ -19,7 +19,7 @@ export default function MarkerLayer({ locations }) {
                     <Popup>
                         <strong>{loc.place_name}</strong>
                         <br />
-                        {loc.description}
+                        {loc.place_description}
                     </Popup>
                 </Marker>
             ))}
