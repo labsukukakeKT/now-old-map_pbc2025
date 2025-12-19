@@ -6,8 +6,8 @@ async function main() {
     {
       place_id: 1,
       place_name: '東京科学大学すずかけ台キャンパス',
-      lattitude: 35.51417560214643,
-      longitude: 139.48364376463735,
+      lat: 35.51417560214643,
+      lng: 139.48364376463735,
       place_description: '旧東京工業です。',
       place_photo_url: null,
       // DateTime? なので Date 型を入れる（年だけIntは不可）
@@ -17,8 +17,8 @@ async function main() {
     {
       place_id: 2,
       place_name: '東京科学大学大岡山キャンパス',
-      lattitude: 35.60485178683271,
-      longitude: 139.68385410808457,
+      lat: 35.60485178683271,
+      lng: 139.68385410808457,
       place_description: '旧東京工業大学です。',
       place_photo_url: null,
       place_era_start: 1924,
@@ -30,8 +30,8 @@ async function main() {
     await prisma.place_DB.upsert({
       where: { place_id: p.place_id },
       update: {
-        lattitude: p.lattitude,
-        longitude: p.longitude,
+        lat: p.lat,
+        lng: p.lng,
         place_description: p.place_description,
         place_photo_url: p.place_photo_url,
         place_era_start: p.place_era_start,
