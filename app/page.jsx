@@ -34,12 +34,16 @@ export default function Home() {
                     throw new Error(`Failed to fetch: ${response.status}`);
                 }
                 const data = await response.json();
+                console.log('[fetchLocations] raw data:', data);
                 if (Array.isArray(data)) {
+                    console.log('[fetchLocations] data is array, length:', data.length);
                     setLocations(data);
                 } else if (Array.isArray(data?.locations)) {
                     // API が { locations: [...] } の場合にも対応
+                    console.log('[fetchLocations] data.locations is array, length:', data.locations.length);
                     setLocations(data.locations);
                 } else {
+                    console.log('[fetchLocations] data is neither array nor has locations property');
                     setLocations([]);
                 }
             } catch (error) {
@@ -200,6 +204,7 @@ export default function Home() {
                     <Map isSatellite={isSatellite} tileUrl={mapData?.url} >
                         <MarkerLayer
                             locations={locations}
+                            selectedYear={selectedYear}
                             onLocationSelect={handleLocationSelect}
                         />
                     </Map>

@@ -21,11 +21,21 @@ const customIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-export default function MarkerLayer({ locations = [], onLocationSelect }) {
+export default function MarkerLayer({ locations = [], onLocationSelect, selectedYear }) {
   const router = useRouter();
   const [selectedPos, setSelectedPos] = useState(null); // [lat, lng] or null
   const [mapEl, setMapEl] = useState(null);
   const [selectionMode, setSelectionMode] = useState(false);
+
+  // inject grayscale class once
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = ".marker-grayscale{filter:grayscale(100%);}";
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // map event handler: only allow selecting empty-space when selectionMode is true
   const map = useMapEvents({
@@ -117,6 +127,37 @@ export default function MarkerLayer({ locations = [], onLocationSelect }) {
     }
   }, []);
 
+  const grayscaleIcon = useMemo(() => {
+    try {
+      return new L.Icon({
+        iconUrl: '/marker-icon.png',
+        iconRetinaUrl: '/marker-icon-2x.png',
+        shadowUrl: '/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+        className: 'marker-grayscale',
+        zIndexOffset: -100,
+      });
+    } catch {
+      return customIcon;
+    }
+  }, []);
+
+  const isActiveInEra = (loc) => {
+    const year = Number(selectedYear);
+    if (!Number.isFinite(year)) return true;
+    const start = loc.place_era_start ? Number(loc.place_era_start) : null;
+    const end = loc.place_era_end ? Number(loc.place_era_end) : null;
+    const hasStart = start !== null && Number.isFinite(start);
+    const hasEnd = end !== null && Number.isFinite(end);
+    if (!hasStart && !hasEnd) return true;
+    if (!hasStart && hasEnd) return year <= end;
+    if (hasStart && !hasEnd) return year >= start;
+    return year >= start && year <= end;
+  };
+
   // ensure we fetch full details if description is missing
   async function handleMarkerClick(loc) {
     if (!onLocationSelect) return;
@@ -164,7 +205,7 @@ export default function MarkerLayer({ locations = [], onLocationSelect }) {
 
   return (
     <>
-      <MarkerClusterGroup>
+      <MarkerClusterGroup key={selectedYear ?? 'clusters'}>
         {(locations || []).map((loc) => {
           const lat = loc.latitude ?? loc.lattitude ?? loc.lat;
           const lng = loc.longitude ?? loc.lng;
@@ -173,11 +214,15 @@ export default function MarkerLayer({ locations = [], onLocationSelect }) {
             return null;
           }
 
+          const inEra = isActiveInEra(loc);
+          const icon = inEra ? customIcon : grayscaleIcon;
+          const key = `${loc.place_id ?? loc.id ?? `${lat}-${lng}`}-${inEra ? 'color' : 'gray'}`;
+
           return (
             <Marker
-              key={loc.place_id ?? loc.id}
+              key={key}
               position={[lat, lng]}
-              icon={customIcon}
+              icon={icon}
               eventHandlers={{
                 click: () => {
                   // use the fetch-aware handler
