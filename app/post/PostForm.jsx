@@ -61,10 +61,10 @@ export default function PostForm({ placeId }) {
                     <textarea
                         id="description"
                         name="description"
-                        rows={15}
-                        placeholder="ここに投稿内容を入力してください..."
-                        style={{ width: '100%' }}
-                        className="w-full border border-gray-300 rounded-md p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-xl font-bold"
+                        rows={7}
+                        placeholder="この場所の豆知識をみんなに共有しましょう"
+                        style={{ width: '100%', fontSize: '1.25rem', fontWeight: '700', fontFamily: 'inherit', color: '#1f2937' }}
+                        className="w-full border border-gray-300 rounded-md p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-xl font-bold text-gray-800 placeholder:text-xl placeholder:font-bold placeholder:text-gray-800 placeholder:opacity-100"
                         required
                     />
                 </div>
