@@ -11,11 +11,7 @@
   - Added the required column `updated_at` to the `user_DB` table without a default value. This is not possible if the table is not empty.
 
 */
--- AlterTable
-ALTER TABLE "place_DB" DROP COLUMN "lattitude",
-DROP COLUMN "longitude",
-ADD COLUMN     "lat" DOUBLE PRECISION NOT NULL,
-ADD COLUMN     "lng" DOUBLE PRECISION NOT NULL;
+
 
 -- AlterTable
 ALTER TABLE "user_DB" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
