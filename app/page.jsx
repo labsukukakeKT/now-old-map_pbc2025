@@ -104,6 +104,23 @@ export default function Home() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(80);
 
+    // compact mode (portrait or small width)
+    const [isCompact, setIsCompact] = useState(false);
+    useEffect(() => {
+        const mqPortrait = window.matchMedia('(orientation: portrait)');
+        const mqNarrow = window.matchMedia('(max-width: 720px)');
+        function handle() {
+            setIsCompact(mqPortrait.matches || mqNarrow.matches);
+        }
+        handle();
+        mqPortrait.addEventListener('change', handle);
+        mqNarrow.addEventListener('change', handle);
+        return () => {
+            mqPortrait.removeEventListener('change', handle);
+            mqNarrow.removeEventListener('change', handle);
+        };
+    }, []);
+
     useEffect(() => {
         function onSidebarState(e) {
             const d = e?.detail ?? {};
@@ -120,21 +137,22 @@ export default function Home() {
             display: 'grid',
             height: '100%',
             width: '100%',
-            gridTemplateColumns: `${SLIDEBAR_CLOSED_WIDTH} 1fr`,
+            gridTemplateColumns: isCompact ? `0 1fr` : `${SLIDEBAR_CLOSED_WIDTH} 1fr`,
             overflow: 'hidden',
         }}>
 
             {/* Left slim column: mount SideBar (portal). SideBar renders the fixed hamburger. */}
             <div style={{
-                width: SLIDEBAR_CLOSED_WIDTH,
+                width: isCompact ? '0px' : SLIDEBAR_CLOSED_WIDTH,
                 height: '100%',
                 zIndex: 10,
                 backgroundColor: '#f9f9f9',
-                padding: 8,
-                display: 'flex',
+                padding: isCompact ? 0 : 8,
+                display: isCompact ? 'none' : 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 8,
+                pointerEvents: isCompact ? 'none' : 'auto',
             }}>
                 <SideBar location={selectedLocation} />
             </div>
@@ -152,7 +170,7 @@ export default function Home() {
 
                 <div style={{
                     width: '100%',
-                    paddingLeft: SLIDEBAR_OPNE_WIDTH, // 左側にサイドバー分の余白
+                    paddingLeft: isCompact ? '0px' : SLIDEBAR_OPNE_WIDTH, // 左側にサイドバー分の余白
                     boxSizing: 'border-box', // paddingを含めた幅計算にする
                     backgroundColor: '#fff',
                     borderBottom: '1px solid #ddd',
