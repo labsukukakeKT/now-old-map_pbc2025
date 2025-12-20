@@ -48,18 +48,23 @@ export default function AccountPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <Card className="w-full max-w-md">
-          <CardHeader>
+          <CardHeader className="text-center">
             <CardTitle>ログインが必要です</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 text-center">
             <p className="text-gray-600">
               アカウントにアクセスするにはログインしてください
             </p>
-            <div className="flex gap-2">
-              <Button asChild className="flex-1">
+            <div>
+              <Button asChild className="w-full">
                 <Link href="/login">ログイン</Link>
               </Button>
-              <Button asChild variant="outline" className="flex-1">
+              <br />
+              <br />
+              <p className="text-gray-600">
+              アカウントをお持ちでない場合はこちらからサインアップしてください。
+              </p>
+              <Button asChild variant="outline" className="w-full">
                 <Link href="/signup">サインアップ</Link>
               </Button>
             </div>
@@ -70,13 +75,24 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+      <div className="max-w-2xl w-full">
         <Card>
-          <CardHeader>
+          <CardHeader className="text-center">
             <CardTitle>アカウント情報</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 text-center">
+            {/* Profile Photo */}
+            {user.user_photo_url && (
+              <div>
+                <img
+                  src={user.user_photo_url}
+                  alt="Profile"
+                  className="w-32 h-32 object-cover rounded-full border-4 border-gray-300 mx-auto"
+                />
+              </div>
+            )}
+
             {/* User Info */}
             <div className="space-y-4">
               <div>
