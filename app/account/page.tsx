@@ -41,7 +41,7 @@ export default function AccountPage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>
   }
 
   if (!user) {
@@ -62,7 +62,7 @@ export default function AccountPage() {
               <br />
               <br />
               <p className="text-gray-600">
-              アカウントをお持ちでない場合はこちらからサインアップしてください。
+                アカウントをお持ちでない場合はこちらからサインアップしてください。
               </p>
               <Button asChild variant="outline" className="w-full">
                 <Link href="/signup">サインアップ</Link>
