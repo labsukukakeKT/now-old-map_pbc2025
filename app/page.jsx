@@ -1,6 +1,6 @@
 'use client'
 import dynamic from "next/dynamic";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
@@ -203,13 +203,16 @@ export default function Home() {
                     position: 'relative',
                     zIndex: 0,
                 }}>
-                    <Map isSatellite={isSatellite} tileUrl={mapData?.url} >
-                        <MarkerLayer
-                            locations={locations}
-                            selectedYear={selectedYear}
-                            onLocationSelect={handleLocationSelect}
-                        />
-                    </Map>
+                    {/* URL引数(緯度経度)からの非同期読み込み、useSearchParamsを使うためのおまじない */}
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <Map isSatellite={isSatellite} tileUrl={mapData?.url} >
+                            <MarkerLayer
+                                locations={locations}
+                                selectedYear={selectedYear}
+                                onLocationSelect={handleLocationSelect}
+                            />
+                        </Map>
+                    </Suspense>
                 </div>
             </div>
         </main>
