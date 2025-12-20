@@ -1,12 +1,13 @@
 /* ブラウザのデフォルトスタイルをリセット */
-html, body {
+html,
+body {
   /* スクロールバーが表示されないようにoverflowを隠す */
-  overflow: hidden; 
-  
+  overflow: hidden;
+
   /* デフォルトのマージンとパディングをゼロにする */
   margin: 0;
   padding: 0;
-  
+
   /* 画面全体のサイズをビューポートぴったりにする */
   width: 100vw;
   height: 100vh;

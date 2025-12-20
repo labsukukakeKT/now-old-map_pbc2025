@@ -31,7 +31,7 @@
 .pie-help { font-size: 12px; color: #57606a; }
 
 /* layout variables */
-:root { --gap: 16px; --upper-height: 300px; }
+:root { --gap: 16px; --upper-height: 300px; --preview-gap: 40px; --footer-bottom: 24px; }
 
 /* container */
 .ppe-container { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
@@ -45,8 +45,7 @@
   gap: var(--gap);
   /* use runtime variable if provided, otherwise fallback */
   height: var(--available-height, calc(100vh - 48px));
-  padding-bottom: 24px;
-  box-sizing: border-box;
+  padding-bottom: 8px !important; /* increase bottom padding to make room for footer/submit button */
 }
 
 /* right column */
@@ -103,6 +102,8 @@
   align-items: stretch;
   flex: 1 1 auto;
   min-height: 0;
+  /* reserve space so editor/preview stop before the submit footer */
+  padding-bottom: var(--preview-gap);
 }
 
 /* editor and preview columns must both stretch to fill vertical space */
@@ -122,6 +123,14 @@
   background: #fff;
   flex: 1 1 auto;
   min-height: 0;
+}
+
+/* compact header for editor/preview */
+.ppe-lower-header {
+  margin: 0;
+  padding: 4px 0; /* reduced vertical padding */
+  font-size: 16px;
+  line-height: 1.2;
 }
 
 /* toolbar styling (modern compact look) */
@@ -152,6 +161,7 @@
   border: none;
   outline: none;
   padding: 12px;
+  padding-bottom: 12px !important; /* reserve space inside editor */
   resize: none;
   overflow: auto;
   background: transparent;
@@ -163,6 +173,7 @@
   flex: 1 1 auto;
   box-sizing: border-box;
   padding: 12px;
+  padding-bottom: 12px !important; /* reserve space inside preview for footer */
   border: 1px solid #e6e6e6;
   border-radius: 6px;
   overflow: auto;
@@ -180,13 +191,19 @@
   padding-left: 2px;
 }
 
-/* footer: helper text at left, submit button aligned under preview at right */
+/* footer: stick above bottom with exact gap and reduced padding */
 .ppe-lower-footer {
+  position: sticky;
+  bottom: var(--footer-bottom);
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 0;    /* spacing above comes from .ppe-lower padding */
+  padding-top: 4px; /* small top padding to separate from content */
+  padding-bottom: 0;/* minimal bottom padding so viewport gap is controlled by bottom */
   box-sizing: border-box;
+  background: transparent;
+  z-index: 12;
 }
 
 /* helper text expands */
@@ -267,4 +284,60 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* replaced invalid styles to match existing solid-border inputs & radius */
+:root {
+  --err: #d93025;
+  --err-ring: rgba(217,48,37,0.08);
+}
+
+/* inputs: use the original border but change its color for invalid state */
+.pie-input.invalid {
+  border-color: var(--err); /* reuse existing 1px solid border, only color changes */
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--err-ring);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* textarea: do not alter its own border for invalid state;
+   the whole editor card will show the red border instead */
+.pie-textarea.invalid {
+  border-color: inherit; /* leave visual to the editor-card.invalid */
+  background: #fff;
+}
+
+/* apply invalid style to the whole editor card so toolbar + textarea appear together */
+.editor-card.invalid {
+  border-color: var(--err); /* change the card's existing border color */
+  box-shadow: 0 0 0 4px var(--err-ring);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* focus behavior: keep subtle ring */
+.pie-input.invalid:focus,
+.editor-card.invalid:focus-within {
+  box-shadow: 0 0 0 6px rgba(217,48,37,0.12);
+  outline: none;
+}
+
+/* label for invalid field */
+.pie-label.invalid {
+  color: var(--err);
+}
+
+/* small error helper text */
+.pie-error {
+  color: var(--err);
+  font-size: 12px;
+  margin-top: 6px; /* small gap above error text so it's readable */
+  line-height: 1.2;
+}
+
+/* map / image error states: update existing border color (no new border) */
+.ppe-map.invalid .ppe-map-wrap,
+.ppe-image-box.invalid {
+  border-color: var(--err);
+  box-shadow: inset 0 0 0 3px var(--err-ring);
+  transition: box-shadow 160ms ease, border-color 160ms ease;
 }

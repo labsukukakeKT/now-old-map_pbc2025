@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useMapEvents, Marker } from "react-leaflet";
 import Map from "./Map";
@@ -23,6 +22,8 @@ export type PlaceInfoEditorProps = {
   onChange: (next: PlaceInfo) => void;
   disabled?: boolean;
   className?: string;
+  errors?: Partial<Record<keyof PlaceInfo, string>>;
+  onSubmit?: () => Promise<void> | void;
 };
 
 function toYearOrNull(input: string): number | null {
@@ -39,6 +40,8 @@ export default function PlaceInfoEditor({
   onChange,
   disabled,
   className,
+  errors,
+  onSubmit,
 }: PlaceInfoEditorProps) {
   const initialCenter = useMemo(
     () => [value.latitude ?? 35.6895, value.longitude ?? 139.6917] as [number, number],
@@ -266,98 +269,175 @@ export default function PlaceInfoEditor({
     }
   }, []);
 
+  // local frontend validation errors
+  const [localErrors, setLocalErrors] = useState<Partial<Record<keyof PlaceInfo, string>>>({});
+  const combinedErrors = { ...(errors || {}), ...(localErrors || {}) };
+
+  function isValidImageUrlClient(u?: string) {
+    if (!u) return false;
+    try {
+      const url = new URL(u);
+      const ext = url.pathname.split(".").pop()?.toLowerCase() ?? "";
+      return ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext) || u.startsWith("data:image");
+    } catch {
+      return false;
+    }
+  }
+
+  function validateFrontend(p: PlaceInfo) {
+    const e: Partial<Record<keyof PlaceInfo, string>> = {};
+    if (!p.placeName || p.placeName.trim() === "") e.placeName = "Place name is required";
+    if (!p.descriptionMarkdown || p.descriptionMarkdown.trim() === "") e.descriptionMarkdown = "Description is required";
+    if (p.latitude == null || Number.isNaN(p.latitude)) e.latitude = "Latitude is required";
+    else if (p.latitude < -90 || p.latitude > 90) e.latitude = "Latitude must be between -90 and 90";
+    if (p.longitude == null || Number.isNaN(p.longitude)) e.longitude = "Longitude is required";
+    else if (p.longitude < -180 || p.longitude > 180) e.longitude = "Longitude must be between -180 and 180";
+    if (p.periodStartYear != null) {
+      if (!Number.isFinite(p.periodStartYear) || p.periodStartYear > 3000) e.periodStartYear = "Invalid start year (≤3000)";
+    }
+    if (p.periodEndYear != null) {
+      if (!Number.isFinite(p.periodEndYear) || p.periodEndYear > 3000) e.periodEndYear = "Invalid end year (≤3000)";
+    }
+    if (p.mainImageUrl && p.mainImageUrl.trim() !== "" && !isValidImageUrlClient(p.mainImageUrl)) {
+      e.mainImageUrl = "Main image must be a valid image URL";
+    }
+    return e;
+  }
+
+  // run validation on a single field blur: recompute frontend errors and keep them
+  function handleBlurField() {
+    const e = validateFrontend(value);
+    setLocalErrors(e);
+  }
+
+  async function handleSubmitClick() {
+    if (disabled) return;
+    const e = validateFrontend(value);
+    setLocalErrors(e);
+    const keys = Object.keys(e);
+    if (keys.length > 0) {
+      const msg = keys.map((k) => `${k}: ${e[k as keyof typeof e]}`).join("\n");
+      window.alert("Please fix the following errors:\n\n" + msg);
+      // focus first invalid field optionally
+      return;
+    }
+    // pass through to parent submit handler
+    if (typeof onSubmit === "function") {
+      await onSubmit();
+    }
+  }
+
   return (
-    <div
-      ref={containerRef}
-      className="ppe-container"
-      style={
-        availableHeight
-          ? ({ ["--available-height" as any]: `${availableHeight}px` } as React.CSSProperties)
-          : undefined
-      }
-    >
-      <div className="ppe-left">
-        <div className="ppe-upper">
-          <div className="ppe-inputs">
-            <label className="pie-label" htmlFor="pie-placeName">
-              Place name
-            </label>
-            <input
-              id="pie-placeName"
-              className="pie-input"
-              type="text"
-              placeholder="e.g., Old Town Square"
-              value={value.placeName}
-              onChange={handleField("placeName")}
-              disabled={disabled}
-            />
+    <>
+      <div
+        ref={containerRef}
+        className="ppe-container"
+        style={
+          availableHeight
+            ? ({ ["--available-height" as any]: `${availableHeight}px` } as React.CSSProperties)
+            : undefined
+        }
+      >
+        <div className="ppe-left">
+          <div className="ppe-upper">
+            <div className="ppe-inputs">
+              <label className={`pie-label ${combinedErrors?.placeName ? "invalid" : ""}`} htmlFor="pie-placeName">
+                Place name
+              </label>
+              <input
+                id="pie-placeName"
+                className={`pie-input ${combinedErrors?.placeName ? "invalid" : ""}`}
+                type="text"
+                placeholder="e.g., Old Town Square"
+                value={value.placeName}
+                onChange={handleField("placeName")}
+                onBlur={handleBlurField}
+                disabled={disabled}
+              />
+              {combinedErrors?.placeName ? <div className="pie-error">{combinedErrors.placeName}</div> : null}
 
-            <label className="pie-label" htmlFor="pie-mainImageUrl" style={{ marginTop: 12 }}>
-              Main picture URL
-            </label>
-            <input
-              id="pie-mainImageUrl"
-              className="pie-input"
-              type="url"
-              inputMode="url"
-              placeholder="https://example.com/your-image.jpg"
-              value={value.mainImageUrl}
-              onChange={handleField("mainImageUrl")}
-              disabled={disabled}
-              spellCheck={false}
-            />
+              <label className={`pie-label ${combinedErrors?.mainImageUrl ? "invalid" : ""}`} htmlFor="pie-mainImageUrl" style={{ marginTop: 12 }}>
+                Main picture URL
+              </label>
+              <input
+                id="pie-mainImageUrl"
+                className={`pie-input ${combinedErrors?.mainImageUrl ? "invalid" : ""}`}
+                type="url"
+                inputMode="url"
+                placeholder="https://example.com/your-image.jpg"
+                value={value.mainImageUrl}
+                onChange={handleField("mainImageUrl")}
+                onBlur={handleBlurField}
+                disabled={disabled}
+                spellCheck={false}
+              />
+              {combinedErrors?.mainImageUrl ? <div className="pie-error">{combinedErrors.mainImageUrl}</div> : null}
 
-            <div className="pie-flex-row" style={{ marginTop: 12 }}>
-              <div className="pie-flex-item">
-                <label className="pie-label" htmlFor="pie-startYear">
-                  Period start (year)
-                </label>
-                <input
-                  id="pie-startYear"
-                  className="pie-input"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]{1,4}"
-                  placeholder="YYYY"
-                  value={value.periodStartYear ?? ""}
-                  onChange={handleField("periodStartYear")}
-                  disabled={disabled}
-                />
+              <div className="pie-flex-row" style={{ marginTop: 12 }}>
+                <div className="pie-flex-item">
+                  <label className={`pie-label ${combinedErrors?.periodStartYear ? "invalid" : ""}`} htmlFor="pie-startYear">
+                    Period start (year)
+                  </label>
+                  <input
+                    id="pie-startYear"
+                    className={`pie-input ${combinedErrors?.periodStartYear ? "invalid" : ""}`}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]{1,4}"
+                    placeholder="YYYY"
+                    value={value.periodStartYear ?? ""}
+                    onChange={handleField("periodStartYear")}
+                    onBlur={handleBlurField}
+                    disabled={disabled}
+                  />
+                  {combinedErrors?.periodStartYear ? <div className="pie-error">{combinedErrors.periodStartYear}</div> : null}
+                </div>
+                <div className="pie-flex-item">
+                  <label className={`pie-label ${combinedErrors?.periodEndYear ? "invalid" : ""}`} htmlFor="pie-endYear">
+                    Period end (year)
+                  </label>
+                  <input
+                    id="pie-endYear"
+                    className={`pie-input ${combinedErrors?.periodEndYear ? "invalid" : ""}`}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]{1,4}"
+                    placeholder="YYYY"
+                    value={value.periodEndYear ?? ""}
+                    onChange={handleField("periodEndYear")}
+                    onBlur={handleBlurField}
+                    disabled={disabled}
+                  />
+                  {combinedErrors?.periodEndYear ? <div className="pie-error">{combinedErrors.periodEndYear}</div> : null}
+                </div>
               </div>
-              <div className="pie-flex-item">
-                <label className="pie-label" htmlFor="pie-endYear">
-                  Period end (year)
-                </label>
-                <input
-                  id="pie-endYear"
-                  className="pie-input"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]{1,4}"
-                  placeholder="YYYY"
-                  value={value.periodEndYear ?? ""}
-                  onChange={handleField("periodEndYear")}
-                  disabled={disabled}
-                />
+              <div className="pie-help" style={{ marginTop: 8 }}>
+                Enter 1–4 digit years. Leave blank if unknown.
               </div>
             </div>
-            <div className="pie-help" style={{ marginTop: 8 }}>
-              Enter 1–4 digit years. Leave blank if unknown.
-            </div>
-          </div>
 
-          {/* collapsed image wrapper: single element contains preview + label via CSS ::after */}
-          <div className="ppe-image-box">
-            {isImageUrl(value.mainImageUrl) ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={value.mainImageUrl!} alt={value.placeName || "preview"} className="ppe-image-el" />
-            ) : (
-              <div className="ppe-image-placeholder">No image<br />(paste a valid image URL)</div>
-            )}
-          </div>
+            {/* Upper-middle: image preview */}
+            <div className="ppe-upper-col ppe-image">
+              <div className="ppe-image-box">
+               {isImageUrl(value.mainImageUrl) ? (
+                 // eslint-disable-next-line @next/next/no-img-element
+                 <img
+                   src={value.mainImageUrl!}
+                   alt={value.placeName || "preview"}
+                   className="ppe-image-el"
+                 />
+               ) : (
+                 <div className="ppe-image-placeholder">
+                   No image
+                   <br />
+                   (paste a valid image URL)
+                 </div>
+               )}
+             </div>
+           </div>
 
-          {/* map */}
-          <div className="ppe-map">
+          {/* Upper-right: map */}
+          <div className={`ppe-upper-col ppe-map ${combinedErrors?.latitude || combinedErrors?.longitude ? "invalid" : ""}`}>
             <div className="ppe-map-wrap">
               <Map center={center} zoom={12} tileUrl={null}>
                 <MapClickListener />
@@ -414,12 +494,14 @@ export default function PlaceInfoEditor({
               <textarea
                 id="pie-description"
                 ref={textareaRef}
-                className="pie-textarea ppe-textarea"
+                className={`pie-textarea ppe-textarea ${combinedErrors?.descriptionMarkdown ? "invalid" : ""}`}
                 placeholder="Write the place description in Markdown..."
                 value={value.descriptionMarkdown}
                 onChange={(e) => onChange({ ...value, descriptionMarkdown: e.target.value })}
+                onBlur={handleBlurField}
                 disabled={disabled}
               />
+              {combinedErrors?.descriptionMarkdown ? <div className="pie-error">{combinedErrors.descriptionMarkdown}</div> : null}
             </div>
           </div>
 
@@ -433,21 +515,18 @@ export default function PlaceInfoEditor({
 
         {/* single footer row for helper text + submit button */}
         <div className="ppe-lower-footer">
-          <div className="footer-left">You can use Markdown here — use the toolbar or type Markdown directly.</div>
-          <div className="footer-right">
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => {
-                // replace with real submit handler as needed
-                // eslint-disable-next-line no-console
-                console.log("Submit place", value);
-              }}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
+               <div className="footer-left">You can use Markdown here — use the toolbar or type Markdown directly.</div>
+               <div className="footer-right">
+                 <button
+                   type="button"
+                   className="btn-primary"
+                   onClick={handleSubmitClick}
+                 >
+                   Submit
+                 </button>
+               </div>
+             </div>
+
       </div>
 
       <div className="ppe-right">
@@ -455,5 +534,6 @@ export default function PlaceInfoEditor({
         <pre className="ppe-json">{JSON.stringify(value, null, 2)}</pre>
       </div>
     </div>
+    </>
   );
 }

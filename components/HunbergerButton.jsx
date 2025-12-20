@@ -1,23 +1,35 @@
-'use client';
-export default function HunbergerButton({ onClick }) {
-    return (
-        <button onClick={onClick} style={{
-                    width: '40px',
-                    height: '40px',
-                    margin: '20px 20px 10px 20px', // 余白を調整
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-around', // 線を均等に配置
-                    alignItems: 'center',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '8px',
-                }}>
-            {/* 三本線のデザイン */}
-            <span style={{ width: '100%', height: '2px', backgroundColor: '#333', borderRadius: '2px' }}></span>
-            <span style={{ width: '100%', height: '2px', backgroundColor: '#333', borderRadius: '2px' }}></span>
-            <span style={{ width: '100%', height: '2px', backgroundColor: '#333', borderRadius: '2px' }}></span>
-        </button>
-    );
+"use client";
+import React from "react";
+
+export default function HunbergerButton({ size = 48 }) {
+  return (
+    <button
+      type="button"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        window.dispatchEvent(new Event("toggle-sidebar"));
+      }}
+      aria-label="Toggle sidebar"
+      style={{
+        width: size,
+        height: size,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "transparent",
+        border: "1px solid rgba(0,0,0,0.08)",
+        padding: 8,
+        borderRadius: 6,
+        cursor: "pointer",
+      }}
+    >
+      {/* simple hamburger icon */}
+      <svg width={18} height={14} viewBox="0 0 18 14" fill="none" aria-hidden>
+        <rect x="0" y="0" width="18" height="2" rx="1" fill="#333" />
+        <rect x="0" y="6" width="18" height="2" rx="1" fill="#333" />
+        <rect x="0" y="12" width="18" height="2" rx="1" fill="#333" />
+      </svg>
+    </button>
+  );
 }
