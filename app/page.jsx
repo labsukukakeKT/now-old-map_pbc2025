@@ -150,7 +150,7 @@ export default function Home() {
                             <LocationDetail location={selectedLocation} />
                             
                         </div>
-                        <div className="mb-8">
+                        <div className="mb-8"> 
                             <PostButton locations={selectedLocation}/>
                         </div>
                     </div>
