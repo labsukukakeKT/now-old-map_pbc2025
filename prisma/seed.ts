@@ -45,6 +45,9 @@ async function main() {
       user_id: 3,
       user_name: '山田太郎',
       user_description: null,
+      email: 'taro@example.com',
+      // SHA256 hash of "password123"
+      password: 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f',
     },
   ]
   for (const u of users) {
@@ -53,6 +56,8 @@ async function main() {
       update: {
         user_name: u.user_name,
         user_description: u.user_description,
+        email: u.email,
+        password: u.password,
       },
       create: u,
     })
