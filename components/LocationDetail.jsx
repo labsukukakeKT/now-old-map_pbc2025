@@ -1,7 +1,8 @@
-'use client'
+"use client"
 
 import { useState, useRef, useEffect } from 'react'
 import PostButton from './PostButton'
+import MarkdownRenderer from './MarkdownRenderer'
 /**
  * 選択された場所の詳細を表示するコンポーネント
  */
@@ -229,20 +230,18 @@ export default function LocationDetail({ location }) {
                 </div>
             )}
 
-            {/* 説明文 */}
+            {/* 説明文 (Markdown) */}
             {(location.place_description || location.abst) && (
                 <div style={{ marginBottom: '15px' }}>
                     <strong style={{ color: '#555', display: 'block', marginBottom: '8px' }}>
                         説明:
                     </strong>
-                    <p style={{
-                        margin: 0,
-                        color: '#333',
-                        lineHeight: '1.6',
-                        whiteSpace: 'pre-wrap'
-                    }}>
-                        {location.place_description || location.abst}
-                    </p>
+                    <div style={{ margin: 0 }}>
+                        <MarkdownRenderer
+                            source={location.place_description || location.abst}
+                            className="md-card"
+                        />
+                    </div>
                 </div>
             )}
 

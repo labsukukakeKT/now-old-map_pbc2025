@@ -35,7 +35,7 @@ export default function MarkdownRenderer({ source, className }: Props) {
   };
 
   return (
-    <div className={className ?? ""}>
+    <div className={className ?? "md-card"}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {source ?? ""}
       </ReactMarkdown>
