@@ -13,9 +13,18 @@
   max-width: 960px;
 }
 
-.pie-row { display: grid; gap: 8px; }
-.pie-label { font-weight: 600; color: #222; }
-.pie-input, .pie-textarea {
+.pie-row {
+  display: grid;
+  gap: 8px;
+}
+
+.pie-label {
+  font-weight: 600;
+  color: #222;
+}
+
+.pie-input,
+.pie-textarea {
   width: 100%;
   border: 1px solid #d0d7de;
   border-radius: 6px;
@@ -24,17 +33,48 @@
   background: #fff;
   color: #24292f;
 }
-.pie-input:disabled, .pie-textarea:disabled { background: #f6f8fa; color: #8c959f; }
-.pie-textarea { resize: vertical; min-height: 160px; }
-.pie-flex-row { display: flex; gap: 12px; }
-.pie-flex-item { flex: 1; min-width: 0; }
-.pie-help { font-size: 12px; color: #57606a; }
+
+.pie-input:disabled,
+.pie-textarea:disabled {
+  background: #f6f8fa;
+  color: #8c959f;
+}
+
+.pie-textarea {
+  resize: vertical;
+  min-height: 160px;
+}
+
+.pie-flex-row {
+  display: flex;
+  gap: 12px;
+}
+
+.pie-flex-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.pie-help {
+  font-size: 12px;
+  color: #57606a;
+}
 
 /* layout variables */
-:root { --gap: 16px; --upper-height: 300px; --preview-gap: 40px; --footer-bottom: 24px; }
+:root {
+  --gap: 16px;
+  --upper-height: 300px;
+  --preview-gap: 40px;
+  --footer-bottom: 24px;
+}
 
 /* container */
-.ppe-container { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.ppe-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
 
 /* left editor area uses runtime-computed available height (set via inline CSS variable) */
 .ppe-left {
@@ -45,11 +85,15 @@
   gap: var(--gap);
   /* use runtime variable if provided, otherwise fallback */
   height: var(--available-height, calc(100vh - 48px));
-  padding-bottom: 8px !important; /* increase bottom padding to make room for footer/submit button */
+  padding-bottom: 8px !important;
+  /* increase bottom padding to make room for footer/submit button */
 }
 
 /* right column */
-.ppe-right { width: 360px; min-width: 260px; }
+.ppe-right {
+  width: 360px;
+  min-width: 260px;
+}
 
 /* upper area: three columns */
 .ppe-upper {
@@ -59,10 +103,23 @@
   align-items: flex-start;
   flex: 0 0 auto;
 }
-.ppe-inputs { flex: 1 1 280px; min-width: 220px; display: flex; flex-direction: column; gap: 8px; }
+
+.ppe-inputs {
+  flex: 1 1 280px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 /* image: square using shared upper height; title via ::after */
-.ppe-image { width: var(--upper-height); min-width: 160px; display: flex; align-items: stretch; }
+.ppe-image {
+  width: var(--upper-height);
+  min-width: 160px;
+  display: flex;
+  align-items: stretch;
+}
+
 .ppe-image-box {
   width: var(--upper-height);
   height: var(--upper-height);
@@ -76,6 +133,7 @@
   padding: 6px;
   position: relative;
 }
+
 .ppe-image-box::after {
   content: "Image preview";
   position: absolute;
@@ -87,13 +145,43 @@
   color: #444;
   pointer-events: none;
 }
-.ppe-image-el { max-width: 100%; max-height: 100%; object-fit: contain; }
-.ppe-image-placeholder { color: #999; text-align: center; padding: 12px; }
+
+.ppe-image-el {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.ppe-image-placeholder {
+  color: #999;
+  text-align: center;
+  padding: 12px;
+}
 
 /* map */
-.ppe-map { width: 420px; min-width: 280px; }
-.ppe-map-wrap { height: var(--upper-height); border-radius: 8px; overflow: hidden; position: relative; }
-.ppe-center-indicator { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 7px; background: red; border: 2px solid white; }
+.ppe-map {
+  width: 420px;
+  min-width: 280px;
+}
+
+.ppe-map-wrap {
+  height: var(--upper-height);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ppe-center-indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  background: red;
+  border: 2px solid white;
+}
 
 /* lower area */
 .ppe-lower {
@@ -101,9 +189,9 @@
   gap: 12px;
   align-items: stretch;
   flex: 1 1 auto;
-  min-height: 0;
-  /* reserve space so editor/preview stop before the submit footer */
-  padding-bottom: var(--preview-gap);
+  min-height: 320px;
+  /* reserve space so editor/preview stop before the submit footer + extra space to scroll */
+  padding-bottom: calc(var(--preview-gap) + 120px);
 }
 
 /* editor and preview columns must both stretch to fill vertical space */
@@ -112,8 +200,8 @@
   min-width: 280px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
+
 .editor-card {
   display: flex;
   flex-direction: column;
@@ -122,13 +210,13 @@
   overflow: hidden;
   background: #fff;
   flex: 1 1 auto;
-  min-height: 0;
 }
 
 /* compact header for editor/preview */
 .ppe-lower-header {
   margin: 0;
-  padding: 4px 0; /* reduced vertical padding */
+  padding: 4px 0;
+  /* reduced vertical padding */
   font-size: 16px;
   line-height: 1.2;
 }
@@ -142,6 +230,7 @@
   border-bottom: 1px solid #e6e6e6;
   flex-wrap: wrap;
 }
+
 .ppe-toolbar button {
   background: transparent;
   border: none;
@@ -150,30 +239,37 @@
   cursor: pointer;
   font-size: 13px;
 }
+
 .ppe-toolbar button:hover {
-  background: rgba(27,31,35,0.06);
+  background: rgba(27, 31, 35, 0.06);
 }
 
 /* make textarea take remaining space inside the card and scroll internally */
 .editor-card .ppe-textarea {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 200px;
   border: none;
   outline: none;
   padding: 12px;
-  padding-bottom: 12px !important; /* reserve space inside editor */
+  padding-bottom: 12px !important;
+  /* reserve space inside editor */
   resize: none;
   overflow: auto;
   background: transparent;
 }
 
 /* preview-body should equal editor-card height and scroll internally */
-.ppe-lower-preview { display: flex; flex-direction: column; width: 420px; min-width: 260px; min-height: 0; }
+.ppe-lower-preview {
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+  min-width: 260px;
+}
+
 .ppe-preview-body {
   flex: 1 1 auto;
   box-sizing: border-box;
   padding: 12px;
-  padding-bottom: 12px !important; /* reserve space inside preview for footer */
   border: 1px solid #e6e6e6;
   border-radius: 6px;
   overflow: auto;
@@ -181,7 +277,9 @@
 }
 
 /* helper line sits outside of the editor-card so preview matches editor-card height */
-.pie-help { margin-top: 8px; }
+.pie-help {
+  margin-top: 8px;
+}
 
 /* helper moved below the lower area (does not affect column heights) */
 .ppe-lower-help {
@@ -198,9 +296,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 0;    /* spacing above comes from .ppe-lower padding */
-  padding-top: 4px; /* small top padding to separate from content */
-  padding-bottom: 0;/* minimal bottom padding so viewport gap is controlled by bottom */
+  margin-top: 0;
+  /* spacing above comes from .ppe-lower padding */
+  padding-top: 4px;
+  /* small top padding to separate from content */
+  padding-bottom: 0;
+  /* minimal bottom padding so viewport gap is controlled by bottom */
   box-sizing: border-box;
   background: transparent;
   z-index: 12;
@@ -236,10 +337,27 @@
 
 /* small screens: stacked layout still allows internal scrolling */
 @media (max-width: 980px) {
-  .ppe-map, .ppe-lower-preview, .ppe-image { width: 100%; min-width: 0; }
-  .ppe-image-box { aspect-ratio: 1/1; height: auto; width: 100%; }
-  .ppe-right { width: 100%; }
-  .ppe-preview-body { max-height: 360px; }
+
+  .ppe-map,
+  .ppe-lower-preview,
+  .ppe-image {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ppe-image-box {
+    aspect-ratio: 1/1;
+    height: auto;
+    width: 100%;
+  }
+
+  .ppe-right {
+    width: 100%;
+  }
+
+  .ppe-preview-body {
+    max-height: 360px;
+  }
 }
 
 /* modern blue button styles */
@@ -253,7 +371,7 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 6px 18px rgba(11,95,255,0.14), 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(11, 95, 255, 0.14), 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
   display: inline-flex;
   align-items: center;
@@ -263,17 +381,17 @@
 /* hover/active/focus states */
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(11,95,255,0.18), 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 10px 22px rgba(11, 95, 255, 0.18), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 6px 14px rgba(11,95,255,0.12);
+  box-shadow: 0 6px 14px rgba(11, 95, 255, 0.12);
 }
 
 .btn-primary:focus {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(11,95,255,0.12), 0 6px 18px rgba(11,95,255,0.14);
+  box-shadow: 0 0 0 4px rgba(11, 95, 255, 0.12), 0 6px 18px rgba(11, 95, 255, 0.14);
   border-radius: 8px;
 }
 
@@ -289,12 +407,13 @@
 /* replaced invalid styles to match existing solid-border inputs & radius */
 :root {
   --err: #d93025;
-  --err-ring: rgba(217,48,37,0.08);
+  --err-ring: rgba(217, 48, 37, 0.08);
 }
 
 /* inputs: use the original border but change its color for invalid state */
 .pie-input.invalid {
-  border-color: var(--err); /* reuse existing 1px solid border, only color changes */
+  border-color: var(--err);
+  /* reuse existing 1px solid border, only color changes */
   background: #fff;
   box-shadow: 0 0 0 4px var(--err-ring);
   transition: border-color 160ms ease, box-shadow 160ms ease;
@@ -303,13 +422,15 @@
 /* textarea: do not alter its own border for invalid state;
    the whole editor card will show the red border instead */
 .pie-textarea.invalid {
-  border-color: inherit; /* leave visual to the editor-card.invalid */
+  border-color: inherit;
+  /* leave visual to the editor-card.invalid */
   background: #fff;
 }
 
 /* apply invalid style to the whole editor card so toolbar + textarea appear together */
 .editor-card.invalid {
-  border-color: var(--err); /* change the card's existing border color */
+  border-color: var(--err);
+  /* change the card's existing border color */
   box-shadow: 0 0 0 4px var(--err-ring);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
@@ -317,7 +438,7 @@
 /* focus behavior: keep subtle ring */
 .pie-input.invalid:focus,
 .editor-card.invalid:focus-within {
-  box-shadow: 0 0 0 6px rgba(217,48,37,0.12);
+  box-shadow: 0 0 0 6px rgba(217, 48, 37, 0.12);
   outline: none;
 }
 
@@ -330,7 +451,8 @@
 .pie-error {
   color: var(--err);
   font-size: 12px;
-  margin-top: 6px; /* small gap above error text so it's readable */
+  margin-top: 6px;
+  /* small gap above error text so it's readable */
   line-height: 1.2;
 }
 
@@ -340,4 +462,153 @@
   border-color: var(--err);
   box-shadow: inset 0 0 0 3px var(--err-ring);
   transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+
+/* File upload styles */
+.pie-file-upload {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pie-file-button {
+  background: linear-gradient(180deg, #f6f8fa 0%, #ebecf0 100%);
+  color: #24292f;
+  border: 1px solid #d0d7de;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.pie-file-button:hover {
+  background: linear-gradient(180deg, #f0f3f6 0%, #e3e5e9 100%);
+  border-color: #c4c9cf;
+}
+
+.pie-file-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pie-file-remove {
+  background: transparent;
+  color: #d93025;
+  border: 1px solid #d93025;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.pie-file-remove:hover {
+  background: rgba(217, 48, 37, 0.08);
+}
+
+.pie-file-remove:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pie-uploading {
+  color: #0b5fff;
+  font-size: 13px;
+  font-weight: 500;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Image input tabs */
+.pie-image-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.pie-image-tab {
+  background: #f6f8fa;
+  color: #57606a;
+  border: 1px solid #d0d7de;
+  border-bottom: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.pie-image-tab:first-child {
+  border-radius: 6px 0 0 0;
+}
+
+.pie-image-tab:last-child {
+  border-radius: 0 6px 0 0;
+  border-left: none;
+}
+
+.pie-image-tab.active {
+  background: #fff;
+  color: #0b5fff;
+  border-bottom: 2px solid #0b5fff;
+  margin-bottom: -1px;
+}
+
+.pie-image-tab:hover:not(.active):not(:disabled) {
+  background: #ebecf0;
+}
+
+.pie-image-tab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* URL input styles */
+.pie-url-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pie-url-field {
+  flex: 1 1 200px;
+  min-width: 150px;
+}
+
+.pie-url-apply {
+  background: linear-gradient(180deg, #0b5fff 0%, #0061e0 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.pie-url-apply:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(11, 95, 255, 0.2);
+}
+
+.pie-url-apply:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

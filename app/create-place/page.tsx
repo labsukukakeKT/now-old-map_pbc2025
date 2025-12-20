@@ -11,6 +11,7 @@ const PlaceInfoEditor = dynamic(
 
 export type PlaceInfo = {
   mainImageUrl: string;
+  mainImageFile: File | null;
   placeName: string;
   periodStartYear: number | null;
   periodEndYear: number | null;
@@ -29,6 +30,7 @@ function PlaceEditorContent() {
   const initial: PlaceInfo = useMemo(
     () => ({
       mainImageUrl: "",
+      mainImageFile: null,
       placeName: "",
       periodStartYear: null,
       periodEndYear: null,
@@ -41,17 +43,7 @@ function PlaceEditorContent() {
 
   const [place, setPlace] = useState<PlaceInfo>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof PlaceInfo, string>>>({});
-
-  function isValidImageUrl(u?: string) {
-    if (!u) return false;
-    try {
-      const url = new URL(u);
-      const ext = url.pathname.split(".").pop()?.toLowerCase() ?? "";
-      return ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext) || u.startsWith("data:image");
-    } catch {
-      return false;
-    }
-  }
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function validate(p: PlaceInfo) {
     const e: Partial<Record<keyof PlaceInfo, string>> = {};
@@ -72,10 +64,6 @@ function PlaceEditorContent() {
       if (!Number.isFinite(p.periodEndYear) || p.periodEndYear > 3000) e.periodEndYear = "Invalid end year";
     }
 
-    // main image url optional but if present must be image url
-    if (p.mainImageUrl && p.mainImageUrl.trim() !== "" && !isValidImageUrl(p.mainImageUrl)) {
-      e.mainImageUrl = "Main image must be a valid image URL";
-    }
     return e;
   }
 
@@ -89,8 +77,33 @@ function PlaceEditorContent() {
       return;
     }
 
-    // build FormData and POST to server API which uses createPlace()
+    setIsSubmitting(true);
+
     try {
+      let imageUrl = place.mainImageUrl || "";
+
+      // If there's a file to upload, upload it first
+      if (place.mainImageFile) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", place.mainImageFile);
+        uploadFormData.append("type", "place_temp"); // temporary upload before place exists
+
+        const uploadResp = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
+
+        const uploadData = await uploadResp.json();
+        if (!uploadResp.ok || uploadData?.error) {
+          window.alert("画像のアップロードに失敗しました: " + (uploadData?.error ?? "unknown"));
+          setIsSubmitting(false);
+          return;
+        }
+
+        imageUrl = uploadData.url || uploadData.photoUrl || "";
+      }
+
+      // build FormData and POST to server API which uses createPlace()
       const fd = new FormData();
       fd.append("place_name", place.placeName);
       fd.append("description_markdown", place.descriptionMarkdown);
@@ -98,7 +111,7 @@ function PlaceEditorContent() {
       fd.append("longitude", String(place.longitude ?? ""));
       fd.append("period_start_year", String(place.periodStartYear ?? ""));
       fd.append("period_end_year", String(place.periodEndYear ?? ""));
-      fd.append("main_image_url", place.mainImageUrl ?? "");
+      fd.append("main_image_url", imageUrl);
 
       const resp = await fetch("/api/create-place", {
         method: "POST",
@@ -108,6 +121,7 @@ function PlaceEditorContent() {
       const data = await resp.json();
       if (!resp.ok || data?.error) {
         window.alert("Create failed: " + (data?.error ?? "unknown"));
+        setIsSubmitting(false);
         return;
       }
       window.alert("Place created");
@@ -115,6 +129,7 @@ function PlaceEditorContent() {
       window.location.href = "/";
     } catch (err) {
       window.alert("Failed to create place. Please try again.");
+      setIsSubmitting(false);
     }
   }
 
@@ -123,9 +138,9 @@ function PlaceEditorContent() {
       <h1>Place Information Editor</h1>
       <PlaceInfoEditor value={place} onChange={setPlace} errors={errors} onSubmit={onSubmitClick} />
 
-      <pre style={{ marginTop: 24, background: "#f6f8fa", padding: 12 }}>
+      {/* <pre style={{ marginTop: 24, background: "#f6f8fa", padding: 12 }}>
         {JSON.stringify(place, null, 2)}
-      </pre>
+      </pre> */}
     </div>
   );
 }

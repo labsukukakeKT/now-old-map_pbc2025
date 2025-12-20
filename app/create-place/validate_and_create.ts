@@ -35,13 +35,18 @@ export async function createPlace(formData: FormData) {
 		if (!Number.isFinite(periodEndYear) || periodEndYear > 3000) errors.push('Period end year must be a number ≤ 3000.')
 	}
 
-	// mainImageUrl: optional, but if present must look like an image URL
+	// mainImageUrl: optional, but if present must be a valid URL
 	function isValidImageUrl(u?: string) {
 		if (!u) return false
 		try {
 			const parsed = new URL(u)
+			// Accept HTTPS URLs (especially from Supabase storage)
+			if (parsed.protocol === 'https:') return true
+			// Accept data URLs
+			if (u.startsWith('data:image')) return true
+			// Fallback: check file extension
 			const ext = (parsed.pathname.split('.').pop() ?? '').toLowerCase()
-			return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext) || u.startsWith('data:image')
+			return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)
 		} catch {
 			return false
 		}
