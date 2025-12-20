@@ -1,4 +1,5 @@
 // import Script from "next/script";
+import "./globals.css";
 import MenuBar from "@/components/MenuBar";
 
 
