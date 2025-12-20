@@ -29,6 +29,7 @@ const PostPlaceInfo = ({ place, posts, children }) => {
                     borderRadius: '0.5rem',
                     padding: '1.5rem',
                     width: '100%',
+                    boxSizing: 'border-box'
                     // maxWidth: '448px' // max-w-md approx - Removed to unify width
                 }}
             >

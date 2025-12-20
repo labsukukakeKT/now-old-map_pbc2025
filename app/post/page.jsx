@@ -41,7 +41,6 @@ export default async function PostPage({ searchParams }) {
   return (
     <div className={styles.container}>
       <div className={styles.innerContainer}>
-        <h1 className={styles.title}>投稿と場所の情報</h1>
 
         <div className={styles.grid}>
 
