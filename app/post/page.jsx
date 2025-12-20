@@ -42,35 +42,11 @@ export default async function PostPage({ searchParams }) {
     <div className={styles.container}>
       <div className={styles.innerContainer}>
 
-        <div className={styles.grid}>
-
-          {/* Left Column: Info, Posts */}
-          <div className={styles.leftColumn}>
-            <PostPlaceInfo place={place} posts={posts}>
-              <PostForm placeId={placeIdStr} />
-            </PostPlaceInfo>
-          </div>
-
-          {/* Right Column: Photo & Form - デスクトップ(lg以上)でのみ表示 */}
-          <div className={styles.rightColumn}>
-            {/* Photo Section */}
-            {place.place_photo_url ? (
-              <div className={styles.imageContainer}>
-                <Image
-                  src={place.place_photo_url}
-                  alt={place.place_name}
-                  className={styles.image}
-                  height={400}
-                  width={400}
-                />
-              </div>
-            ) : (
-              <div className={styles.noImage}>
-                <span className={styles.noImageText}>No Image Available</span>
-              </div>
-            )}
-
-          </div>
+        {/* Main Content */}
+        <div className={styles.mainContent}>
+          <PostPlaceInfo place={place} posts={posts}>
+            <PostForm placeId={placeIdStr} />
+          </PostPlaceInfo>
         </div>
       </div>
     </div>
