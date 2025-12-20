@@ -41,35 +41,90 @@ export default function AccountPage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>
   }
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>ログインが必要です</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-center">
-            <p className="text-gray-600">
-              アカウントにアクセスするにはログインしてください
-            </p>
-            <div>
-              <Button asChild className="w-full">
-                <Link href="/login">ログイン</Link>
-              </Button>
-              <br />
-              <br />
-              <p className="text-gray-600">
-              アカウントをお持ちでない場合はこちらからサインアップしてください。
-              </p>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/signup">サインアップ</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        padding: '16px',
+        backgroundColor: '#f9fafb'
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '400px',
+          backgroundColor: '#fff',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          padding: '32px',
+          textAlign: 'center'
+        }}>
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            marginBottom: '16px',
+            color: '#111827'
+          }}>
+            ログインが必要です
+          </h1>
+          <p style={{
+            color: '#6b7280',
+            marginBottom: '24px',
+            fontSize: '14px'
+          }}>
+            アカウントにアクセスするにはログイン、または新規登録を行ってください。
+          </p>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <Link
+              href="/login"
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '12px 24px',
+                backgroundColor: '#3b82f6',
+                color: '#fff',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '16px',
+                textAlign: 'center',
+                transition: 'background-color 0.2s',
+                boxSizing: 'border-box'
+              }}
+            >
+              ログイン
+            </Link>
+            <Link
+              href="/signup"
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '12px 24px',
+                backgroundColor: '#fff',
+                color: '#3b82f6',
+                border: '2px solid #3b82f6',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '16px',
+                textAlign: 'center',
+                transition: 'background-color 0.2s',
+                boxSizing: 'border-box'
+              }}
+            >
+              サインアップ
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

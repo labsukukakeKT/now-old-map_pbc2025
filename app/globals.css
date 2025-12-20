@@ -21,3 +21,13 @@ body {
 #__next {
   height: 100%;
 }
+
+#contents {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #hamburger-button-container {
+    display: none !important;
+  }
+}
