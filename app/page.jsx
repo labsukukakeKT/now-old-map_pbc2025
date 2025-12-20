@@ -1,6 +1,7 @@
 'use client'
 import dynamic from "next/dynamic";
 import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
@@ -17,11 +18,43 @@ const MarkerLayer = dynamic(() => import("@/components/MarkerLayer"), {
   ssr: false,
 });
 
+// URLパラメータからplace_idを読み取り、該当する場所を自動選択するコンポーネント
+// useSearchParamsを使用するためSuspense境界内でレンダリングする必要あり
+function PlaceAutoSelector({ locations, onLocationSelect }) {
+  const searchParams = useSearchParams();
+  const urlPlaceId = searchParams?.get('place_id');
+
+  useEffect(() => {
+    if (!urlPlaceId || !locations || locations.length === 0) return;
+
+    const placeIdNum = parseInt(urlPlaceId, 10);
+    if (isNaN(placeIdNum)) return;
+
+    // locations内から該当するplace_idを持つ場所を検索
+    const targetLocation = locations.find(loc => {
+      const locId = loc.place_id ?? loc.id;
+      return locId === placeIdNum;
+    });
+
+    if (targetLocation) {
+      // 見つかったらその場所を選択し、サイドバーを開く
+      onLocationSelect(targetLocation);
+      // 少し遅延を入れてサイドバーを開く（地図の読み込み完了を待つ）
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
+      }, 300);
+    }
+  }, [urlPlaceId, locations, onLocationSelect]);
+
+  return null; // このコンポーネントはUIを持たない
+}
+
 
 
 // サイドバーの幅
 const SLIDEBAR_OPNE_WIDTH = '400px';
 const SLIDEBAR_CLOSED_WIDTH = '80px';
+
 
 
 export default function Home() {
@@ -59,6 +92,15 @@ export default function Home() {
   // 配列でなければ空配列にフォールバック
   const safeLocations = Array.isArray(locations) ? locations : [];
 
+  useEffect(() => {
+    function onSidebarState(e) {
+      const d = e?.detail ?? {};
+      setSidebarOpen(Boolean(d.open));
+      if (typeof d.width === "number") setSidebarWidth(d.width);
+    }
+    window.addEventListener("sidebar-state", onSidebarState);
+    return () => window.removeEventListener("sidebar-state", onSidebarState);
+  }, []);
 
   // 選択された場所の管理
   const [selectedLocation, setSelectedLocation] = useState(null);
