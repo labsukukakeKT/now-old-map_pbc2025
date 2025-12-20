@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-
+import PostButton from './PostButton'
 /**
  * 選択された場所の詳細を表示するコンポーネント
  */
@@ -335,6 +335,11 @@ export default function LocationDetail({ location }) {
                     </div>
                 )}
             </div>
+            {(location) && (
+                <div className="mb-8" style={{ padding: '0 10px', flexShrink: 0 }}>
+                    <PostButton locations={location} />
+                </div>
+            )}
         </div>
     );
 }
