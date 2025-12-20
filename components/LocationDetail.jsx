@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 /**
  * 選択された場所の詳細を表示するコンポーネント
@@ -11,6 +11,11 @@ export default function LocationDetail({ location }) {
     const [uploadSuccess, setUploadSuccess] = useState('')
     const [photoUrl, setPhotoUrl] = useState(location?.place_photo_url)
     const fileInputRef = useRef(null)
+
+    // locationが変わった時にphotoUrlも更新
+    useEffect(() => {
+        setPhotoUrl(location?.place_photo_url)
+    }, [location?.place_id])
 
     if (!location) {
         return (
