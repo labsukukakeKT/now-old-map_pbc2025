@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-export default function HunbergerButton({ size = 48 }) {
+export default function HamburgerButton({ size = 48 }) {
   return (
     <button
       type="button"
