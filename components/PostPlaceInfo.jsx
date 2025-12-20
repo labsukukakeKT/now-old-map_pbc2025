@@ -4,7 +4,7 @@ import PostPageImage from './PostPageImage';
 
 const PostPlaceInfo = ({ place, posts, children }) => {
     return (
-        <div className="flex flex-col gap-8 w-full mb-8">
+        <div className="flex flex-col gap-8 mb-8 w-[1000px] flex-shrink-0">
             {/* --- Top Section: Split Layout (Left: Name+Photo, Right: Description) --- */}
             <div className="flex flex-row gap-6 items-start w-full">
 

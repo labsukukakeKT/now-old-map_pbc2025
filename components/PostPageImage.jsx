@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 
 export default function PostPageImage({ place }) {
     const [isUploading, setIsUploading] = useState(false)
@@ -61,11 +62,20 @@ export default function PostPageImage({ place }) {
                 onClick={!photoUrl ? handleUploadClick : undefined}
             >
                 {photoUrl ? (
-                    <img
-                        src={photoUrl}
-                        alt={place.place_name}
-                        className="h-full w-auto max-w-none object-contain rounded-lg"
-                    />
+                    <div className="relative w-auto h-full">
+                        <Image
+                            src={photoUrl}
+                            alt={place.place_name}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            quality={10}
+                            style={{ width: 'auto', height: '100%' }}
+                            className="max-w-none object-contain rounded-lg"
+                            priority
+                            unoptimized={false}
+                        />
+                    </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center w-full h-full text-gray-500">
                         <span className="mb-3 text-sm font-bold">画像をアップロード</span>
