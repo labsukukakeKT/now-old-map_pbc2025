@@ -130,82 +130,165 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-      <div className="max-w-2xl w-full">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle>アカウント情報</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6 text-center">
-            {/* Profile Photo */}
-            {user.user_photo_url && (
-              <div>
-                <img
-                  src={user.user_photo_url}
-                  alt="Profile"
-                  className="w-32 h-32 object-cover rounded-full border-4 border-gray-300 mx-auto"
-                />
+    <div className="account-page">
+      <Card className="account-card">
+        <CardHeader className="account-header">
+          {/* Profile Photo */}
+          <div className="account-avatar-container">
+            {user.user_photo_url ? (
+              <img
+                src={user.user_photo_url}
+                alt={user.user_name}
+                className="account-avatar"
+              />
+            ) : (
+              <div className="account-avatar-placeholder">
+                {user.user_name.charAt(0).toUpperCase()}
               </div>
             )}
+          </div>
+          <CardTitle className="account-username">{user.user_name}</CardTitle>
+        </CardHeader>
 
-            {/* User Info */}
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-600">
-                  ユーザーID
-                </label>
-                <p className="mt-1 text-lg">{user.user_id}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-600">
-                  メールアドレス
-                </label>
-                <p className="mt-1 text-lg">{user.email}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-600">
-                  ユーザー名
-                </label>
-                <p className="mt-1 text-lg">{user.user_name}</p>
-              </div>
-
-              {user.user_description && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">
-                    自己紹介
-                  </label>
-                  <p className="mt-1 text-lg">{user.user_description}</p>
-                </div>
-              )}
-
-              <div>
-                <label className="text-sm font-medium text-gray-600">
-                  アカウント作成日時
-                </label>
-                <p className="mt-1 text-lg">
-                  {new Date(user.created_at).toLocaleString("ja-JP")}
-                </p>
-              </div>
+        <CardContent className="account-content">
+          {/* User Info */}
+          <div className="account-info-section">
+            <div className="account-info-item">
+              <span className="account-info-label">メールアドレス</span>
+              <span className="account-info-value">{user.email}</span>
             </div>
+          </div>
 
-            {/* Actions */}
-            <div className="border-t pt-6 space-y-3 flex flex-col">
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/create-place">新しい場所を追加</Link>
-              </Button>
-              <Button
-                onClick={handleLogout}
-                variant="destructive"
-                className="w-full"
-              >
-                ログアウト
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Actions */}
+          <div className="account-actions">
+            <Button asChild variant="outline" className="account-btn">
+              <Link href="/create-place">新しい場所を追加</Link>
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="destructive"
+              className="account-btn"
+            >
+              ログアウト
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <style jsx global>{`
+        .account-page {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .account-card {
+          width: 100%;
+          max-width: 400px;
+          border-radius: 20px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+          overflow: hidden;
+          background: #fff;
+        }
+
+        .account-header {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 40px 24px 24px;
+          background: linear-gradient(135deg, #f6f8fc 0%, #eef2f7 100%);
+        }
+
+        .account-avatar-container {
+          margin-bottom: 16px;
+        }
+
+        .account-avatar {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 4px solid #fff;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .account-avatar-placeholder {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 42px;
+          font-weight: 600;
+          border: 4px solid #fff;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .account-username {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a1a2e;
+          margin: 0;
+          text-align: center;
+        }
+
+        .account-content {
+          padding: 32px 24px;
+        }
+
+        .account-info-section {
+          margin-bottom: 32px;
+        }
+
+        .account-info-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 16px;
+          background: #f8fafc;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .account-info-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .account-info-value {
+          font-size: 16px;
+          font-weight: 500;
+          color: #1e293b;
+        }
+
+        .account-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .account-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+        }
+
+        .account-btn:hover {
+          transform: translateY(-2px);
+        }
+      `}</style>
     </div>
   )
 }
