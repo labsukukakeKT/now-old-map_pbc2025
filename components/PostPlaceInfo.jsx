@@ -29,12 +29,7 @@ const PostPlaceInfo = ({ place, posts }) => {
             >
                 <h3 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">みんなの投稿</h3>
                 {/* 最大高さを設定し、超えたらスクロール */}
-                <div
-                    style={{
-                        maxHeight: '320px',
-                        overflowY: 'auto'
-                    }}
-                >
+                <div>
                     {posts && posts.length > 0 ? (
                         <div className="flex flex-col gap-4 pr-2">
                             {posts.map((post) => (
