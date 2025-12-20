@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import PlaceSelection from "./PlaceSelection";
 import LocationDetail from "./LocationDetail";
 import HunbergerButton from "./HunbergerButton";
+import QRButton from "./QRButton";
 
 export default function SideBar({ location }: { location: any }) {
   const [open, setOpen] = useState(false);
@@ -119,6 +120,9 @@ export default function SideBar({ location }: { location: any }) {
               <h3 style={{ margin: 0, fontSize: 16 }}>
                 {pane === "place-selection" ? "Create new place" : "Location detail"}
               </h3>
+              {pane !== "place-selection" && (
+                <QRButton location={location} />
+              )}
             </div>
           ) : null}
         </div>
