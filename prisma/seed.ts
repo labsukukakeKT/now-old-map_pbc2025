@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
+const CHANGE_PLACE_DB = true;
+const CHANGE_USER_DB = false;
+
 async function main() {
   const places = [
     {
