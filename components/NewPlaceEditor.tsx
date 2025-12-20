@@ -359,7 +359,7 @@ export default function PlaceInfoEditor({
           {/* map */}
           <div className="ppe-map">
             <div className="ppe-map-wrap">
-              <Map center={center} zoom={12}>
+              <Map center={center} zoom={12} tileUrl={null}>
                 <MapClickListener />
                 {markerPos ? <Marker position={markerPos as any} icon={markerIcon as any} /> : null}
               </Map>
