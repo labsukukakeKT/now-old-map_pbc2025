@@ -41,7 +41,7 @@ export default function LoginPage() {
         localStorage.setItem("user", JSON.stringify(data.user))
       }
 
-      router.push("/my-pets")
+      router.push("/account")
     } catch (err: any) {
       setError(err.message || "Something went wrong")
     } finally {
