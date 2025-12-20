@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function MenuBar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    router.refresh();
+    router.push("/");
+  };
 
   const isHome = pathname === "/";
   const isAccount = pathname === "/account";
@@ -13,7 +20,7 @@ export default function MenuBar() {
     <header style={styles.header}>
       <div style={styles.inner}>
         {/* 左：ホーム */}
-        <Link href="/" style={{ ...styles.boxBtn, ...(isHome ? styles.active : {}) }} aria-label="ホーム">
+        <Link href="/" onClick={handleHomeClick} style={{ ...styles.boxBtn, ...(isHome ? styles.active : {}) }} aria-label="ホーム">
           🏠
         </Link>
 
