@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
-import HunbergerButton from "@/components/HunbergerButton";
+import SideBar from "@/components/SideBar";
 import TileLoader from "@/utils/tileloader";
 
 const Map = dynamic(() => import("@/components/Map"), {
@@ -54,18 +54,6 @@ export default function Home() {
   const safeLocations = Array.isArray(locations) ? locations : [];
 
 
-  // サイドバー開閉の状態の管理
-  const [isSlidebarOpen, setIsSlidebarOpen] = useState(false);
-  function toggleSidebar() {
-    setIsSlidebarOpen(!isSlidebarOpen);
-  };
-  let slidebar_width;
-  if (isSlidebarOpen) {
-    slidebar_width = SLIDEBAR_OPNE_WIDTH;
-  } else {
-    slidebar_width = SLIDEBAR_CLOSED_WIDTH;
-  }
-
   // 選択された場所の管理
   const [selectedLocation, setSelectedLocation] = useState(null);
 
@@ -78,7 +66,7 @@ export default function Home() {
   // マーカークリック時の処理
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
-    setIsSlidebarOpen(true); // サイドバーを自動で開く
+        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
   };
   const toggleMapLayer = () => {
     setIsSatellite(!isSatellite);
@@ -108,6 +96,20 @@ export default function Home() {
     return tileLoader.GetUrl(selectedYear, type);
   }, [tileLoader, selectedYear, isSatellite]);
 
+  // track sidebar open state (width provided by SideBar)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(80);
+
+  useEffect(() => {
+    function onSidebarState(e) {
+      const d = e?.detail ?? {};
+      setSidebarOpen(Boolean(d.open));
+      if (typeof d.width === "number") setSidebarWidth(d.width);
+    }
+    window.addEventListener("sidebar-state", onSidebarState);
+    return () => window.removeEventListener("sidebar-state", onSidebarState);
+  }, []);
+
 
   return (
     <main style={{
@@ -118,74 +120,20 @@ export default function Home() {
       overflow: 'hidden',
     }}>
 
-
-      {/* サイドバー */}
-      <div style={{
-        position: 'absolute',
-        width: slidebar_width,
-        height: 'calc(100% - 80px)',
-        zIndex: 10,
-        // overflowY: 'auto' から hidden に変更し、全体スクロールを防ぐ
-        overflowY: 'hidden',
-        backgroundColor: '#f9f9f9',
-        padding: 0,
-        transition: 'width 0.3s ease',
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-
-        {/* 上部固定エリア: ボタン群 */}
-        <div style={{
-          flex: '0 0 auto', // 縮小しない
-          padding: '10px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-          zIndex: 20
-        }}>
-          <HunbergerButton onClick={toggleSidebar} />
-          <div>
-            <button
-              onClick={toggleMapLayer}
-              style={{
-                width: '60px',
-                height: '60px',
-                fontWeight: 'bold',
-                fontSize: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              {isSatellite ? '標準地図' : '航空写真'}
-            </button>
-          </div>
-        </div>
-
-
-        {/* 下部スクロールエリア: コンテンツ */}
-        <div style={{
-          flex: '1 1 auto', // 残りの高さを埋める
-          minHeight: 0,     // Flexboxの入れ子でスクロールさせるために必須
-          overflowY: isSlidebarOpen ? 'auto' : 'hidden',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          {isSlidebarOpen && (
-            <>
-              <div style={{
-                padding: '10px',
-                flex: '1 0 auto' // コンテンツ
+            {/* Left slim column: mount SideBar (portal). SideBar renders the fixed hamburger. */}
+            <div style={{
+                width: SLIDEBAR_CLOSED_WIDTH,
+                height: '100%',
+                zIndex: 10,
+                backgroundColor: '#f9f9f9',
+                padding: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
               }}>
-                <LocationDetail location={selectedLocation} />
-              </div>
-              <div className="mb-8" style={{ padding: '0 10px', flexShrink: 0 }}>
-                <PostButton locations={selectedLocation} />
-              </div>
-            </>
-          )}
-        </div>
-
-      </div>
-
+                <SideBar location={selectedLocation} />
+            </div>
 
       {/* マップとスライドバーのエリア */}
       <div style={{
@@ -199,14 +147,37 @@ export default function Home() {
       }}>
 
         <div style={{
-          height: '70px', // Pipsを表示するため少し高めに設定
-          width: '75%',
-          marginLeft: 'auto',
+          height: 'max(80px,10%)',
+          width: '100%',
           backgroundColor: '#fff',
           borderBottom: '1px solid #ddd',
-          paddingTop: '30px', // ツールチップの重なり防止
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',     // flush to right
+          gap: 12,
+          padding: '8px', // add top padding for tooltip room
+          boxSizing: 'border-box',
         }}>
-          <YearSlider onChange={setSelectedYear} />
+          <button
+            onClick={toggleMapLayer}
+            aria-label="Toggle satellite"
+            style={{
+              minWidth: 56,
+              height: 40,
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: 'pointer',
+              padding: '6px 10px',
+              borderRadius: 6,
+              border: '1px solid #ddd',
+              background: isSatellite ? '#eef4ff' : '#fff',
+            }}
+          >
+            {isSatellite ? '標準' : '航空'}
+          </button>
+          <div style={{ width: 'min(720px, 60%)', padding: '8px 40px 8px 8px', transform: 'translateY(25%)' }}>
+            <YearSlider onChange={setSelectedYear} />
+          </div>
         </div>
 
 
