@@ -94,6 +94,11 @@ export default function SignupPage() {
         throw new Error(data.error || "Signup failed")
       }
 
+      // Store user info in localStorage
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user))
+      }
+
       router.push("/account")
     } catch (err: any) {
       setError(err.message || "Something went wrong")

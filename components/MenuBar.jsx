@@ -2,10 +2,25 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function MenuBar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Get user from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      } catch (error) {
+        console.error("Failed to parse user data:", error);
+      }
+    }
+  }, [pathname]); // pathname が変わるたびに再取得
 
   const handleHomeClick = (e) => {
     e.preventDefault();
@@ -32,9 +47,21 @@ export default function MenuBar() {
         {/* 右：アカウント */}
         <Link
           href="/account"
-          style={{ ...styles.boxBtn, ...(isAccount ? styles.active : {}) }}
+          style={{ ...styles.boxBtn, ...(isAccount ? styles.active : {}), overflow: 'hidden' }}
         >
-          アカウント
+          {user?.user_photo_url ? (
+            <img
+              src={user.user_photo_url}
+              alt="Profile"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            "アカウント"
+          )}
         </Link>
       </div>
     </header>
