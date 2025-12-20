@@ -249,8 +249,8 @@ export default function MarkerLayer({ locations = [], onLocationSelect, selected
           <div
             style={{
               position: "absolute",
-              right: 12,
-              bottom: 12,
+              right: 24,
+              bottom: 24, // lifted to avoid colliding with map provider disclosure
               zIndex: 9999,
               display: "flex",
               gap: 8,

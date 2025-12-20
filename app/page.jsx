@@ -5,6 +5,7 @@ import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
 import SideBar from "@/components/SideBar";
+import LayerToggle from "@/components/LayerToggle";
 import TileLoader from "@/utils/tileloader";
 
 const Map = dynamic(() => import("@/components/Map"), {
@@ -184,24 +185,7 @@ export default function Home() {
                     gap: '20px', // ボタンとスライダーの間隔
                     height: '80px', // 全体の高さ
                 }}>
-                    <button
-                        onClick={toggleMapLayer}
-                        aria-label="Toggle satellite"
-                        style={{
-                            minWidth: '80px',
-                            height: '40px',
-                            fontWeight: 600,
-                            fontSize: 13,
-                            cursor: 'pointer',
-                            padding: '6px 10px',
-                            borderRadius: 6,
-                            border: '1px solid #ddd',
-                            background: isSatellite ? '#eef4ff' : '#fff',
-                            flexShrink: 0,
-                        }}
-                    >
-                        {isSatellite ? '標準' : '航空'}
-                    </button>
+                    <LayerToggle isSatellite={isSatellite} onChange={setIsSatellite} isCompact={isCompact} />
 
                     <div style={{
                         flexGrow: 1, // 残りのスペースを使う

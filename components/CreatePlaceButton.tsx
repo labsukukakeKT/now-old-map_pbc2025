@@ -33,7 +33,7 @@ export default function CreatePlaceButton({ disabled, onCreate, children }: Prop
         gap: 8,
       }}
     >
-      {children ?? "Create place here"}
+      {children ?? "Create New Place"}
     </button>
   );
 }
