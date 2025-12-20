@@ -67,7 +67,7 @@ export default function MarkerLayer({ locations = [], onLocationSelect, selected
         window.dispatchEvent(new CustomEvent("place-selected", { detail: null }));
       }
     },
-    move: () => {},
+    move: () => { },
   });
 
   // attach map DOM container for portal once available
@@ -232,8 +232,8 @@ export default function MarkerLayer({ locations = [], onLocationSelect, selected
             >
               <Popup>
                 <strong>{loc.place_name}</strong>
-                <br />
-                {loc.place_description ?? loc.description ?? "No description"}
+                {/* <br /> */}
+                {/* {loc.place_description ?? loc.description ?? "No description"} */}
               </Popup>
             </Marker>
           );
