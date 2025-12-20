@@ -1,6 +1,6 @@
 'use client'
 import dynamic from "next/dynamic";
-import { useState, useEffect, useMemo, Suspense } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
@@ -22,8 +22,11 @@ const MarkerLayer = dynamic(() => import("@/components/MarkerLayer"), {
 function PlaceAutoSelector({ locations, onLocationSelect }) {
   const searchParams = useSearchParams();
   const urlPlaceId = searchParams?.get('place_id');
+  const hasSelectedRef = React.useRef(false);
 
   useEffect(() => {
+    // 既に選択済みの場合は何もしない
+    if (hasSelectedRef.current) return;
     if (!urlPlaceId || !locations || locations.length === 0) return;
 
     const placeIdNum = parseInt(urlPlaceId, 10);
@@ -36,12 +39,21 @@ function PlaceAutoSelector({ locations, onLocationSelect }) {
     });
 
     if (targetLocation) {
+      // 選択済みフラグを立てる
+      hasSelectedRef.current = true;
+
       // 見つかったらその場所を選択し、サイドバーを開く
       onLocationSelect(targetLocation);
+
       // 少し遅延を入れてサイドバーを開く（地図の読み込み完了を待つ）
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
       }, 300);
+
+      // URLからplace_idパラメータを削除（再選択を防ぐため）
+      const url = new URL(window.location.href);
+      url.searchParams.delete('place_id');
+      window.history.replaceState({}, '', url.toString());
     }
   }, [urlPlaceId, locations, onLocationSelect]);
 
@@ -101,11 +113,11 @@ export default function Home() {
   // 地図タイルの管理
   const [tileLoader, setTileLoader] = useState(null);
 
-  // マーカークリック時の処理
-  const handleLocationSelect = (location) => {
+  // マーカークリック時の処理（useCallbackでメモ化して再生成を防ぐ）
+  const handleLocationSelect = useCallback((location) => {
     setSelectedLocation(location);
     window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
-  };
+  }, []);
   const toggleMapLayer = () => {
     setIsSatellite(!isSatellite);
   };
