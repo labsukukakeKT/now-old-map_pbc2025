@@ -15,10 +15,24 @@ interface User {
   created_at: string
 }
 
+interface PostWithPlace {
+  post_id: number
+  description: string
+  photo_url?: string
+  uploaded_date: string
+  place_DB: {
+    place_id: number
+    place_name: string
+    place_photo_url?: string
+  }
+}
+
 export default function AccountPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const [posts, setPosts] = useState<PostWithPlace[]>([])
   const [loading, setLoading] = useState(true)
+  const [postsLoading, setPostsLoading] = useState(false)
 
   useEffect(() => {
     // Get user from localStorage
@@ -33,6 +47,28 @@ export default function AccountPage() {
     }
     setLoading(false)
   }, [])
+
+  // Fetch user's posts when user is loaded
+  useEffect(() => {
+    async function fetchUserPosts() {
+      if (!user?.user_id) return
+
+      setPostsLoading(true)
+      try {
+        const response = await fetch(`/api/user-posts?user_id=${user.user_id}`)
+        const data = await response.json()
+        if (response.ok && data.posts) {
+          setPosts(data.posts)
+        }
+      } catch (error) {
+        console.error("Failed to fetch user posts:", error)
+      } finally {
+        setPostsLoading(false)
+      }
+    }
+
+    fetchUserPosts()
+  }, [user?.user_id])
 
   const handleLogout = () => {
     localStorage.removeItem("user")
@@ -159,11 +195,52 @@ export default function AccountPage() {
             </div>
           </div>
 
+          {/* User Posts Section */}
+          <div className="account-posts-section">
+            <h3 className="account-posts-title">あなたの投稿</h3>
+            {postsLoading ? (
+              <div className="account-posts-loading">読み込み中...</div>
+            ) : posts.length === 0 ? (
+              <div className="account-posts-empty">
+                まだ投稿がありません
+              </div>
+            ) : (
+              <div className="account-posts-list">
+                {posts.map((post) => (
+                  <Link
+                    key={post.post_id}
+                    href={`/post?id=${post.place_DB.place_id}`}
+                    className="account-post-item"
+                  >
+                    <div className="account-post-place">
+                      <span className="account-post-place-name">
+                        📍 {post.place_DB.place_name}
+                      </span>
+                      <span className="account-post-date">
+                        {new Date(post.uploaded_date).toLocaleDateString("ja-JP")}
+                      </span>
+                    </div>
+                    <p className="account-post-description">
+                      {post.description}
+                    </p>
+                    {post.photo_url && (
+                      <img
+                        src={post.photo_url}
+                        alt="投稿画像"
+                        className="account-post-image"
+                      />
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Actions */}
           <div className="account-actions">
-            <Button asChild variant="outline" className="account-btn">
+            {/* <Button asChild variant="outline" className="account-btn">
               <Link href="/create-place">新しい場所を追加</Link>
-            </Button>
+            </Button> */}
             <Button
               onClick={handleLogout}
               variant="destructive"
@@ -287,6 +364,91 @@ export default function AccountPage() {
 
         .account-btn:hover {
           transform: translateY(-2px);
+        }
+
+        /* Posts Section Styles */
+        .account-posts-section {
+          margin-bottom: 24px;
+          margin-top: 8px;
+        }
+
+        .account-posts-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1a1a2e;
+          margin-bottom: 12px;
+        }
+
+        .account-posts-loading,
+        .account-posts-empty {
+          text-align: center;
+          padding: 24px;
+          color: #64748b;
+          font-size: 14px;
+          background: #f8fafc;
+          border-radius: 12px;
+          border: 1px dashed #e2e8f0;
+        }
+
+        .account-posts-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          max-height: 300px;
+          overflow-y: auto;
+        }
+
+        .account-post-item {
+          display: block;
+          padding: 14px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+
+        .account-post-item:hover {
+          border-color: #667eea;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+          transform: translateY(-2px);
+        }
+
+        .account-post-place {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+
+        .account-post-place-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #667eea;
+        }
+
+        .account-post-date {
+          font-size: 12px;
+          color: #94a3b8;
+        }
+
+        .account-post-description {
+          font-size: 13px;
+          color: #475569;
+          margin: 0;
+          line-height: 1.5;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .account-post-image {
+          width: 100%;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 8px;
+          margin-top: 10px;
         }
       `}</style>
     </div>
