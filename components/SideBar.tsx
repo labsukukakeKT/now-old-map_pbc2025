@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import PlaceSelection from "./PlaceSelection";
 import LocationDetail from "./LocationDetail";
-import HunbergerButton from "./HunbergerButton";
+import HamburgerButton from "./HamburgerButton";
 import QRButton from "./QRButton";
 
 export default function SideBar({ location }: { location: any }) {
@@ -69,6 +69,7 @@ export default function SideBar({ location }: { location: any }) {
     <>
       {/* fixed-position hamburger stays visually in the same spot */}
       <div
+        id="hamburger-button-container"
         style={{
           position: "fixed",
           left: BUTTON_PADDING, // fixed 8px left padding
@@ -77,7 +78,7 @@ export default function SideBar({ location }: { location: any }) {
           pointerEvents: "auto",
         }}
       >
-        <HunbergerButton size={BUTTON_SIZE} />
+        <HamburgerButton size={BUTTON_SIZE} />
       </div>
 
       {/* animated sidebar */}
