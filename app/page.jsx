@@ -57,6 +57,20 @@ export default function Home() {
   // 選択された場所の管理
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  // URLから場所を開く
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const placeIdParam = searchParams ? searchParams.get('placeId') : null;
+
+  useEffect(() => {
+    if (placeIdParam && locations.length > 0) {
+      const location = locations.find(l => String(l.place_id) === String(placeIdParam));
+      if (location) {
+        setSelectedLocation(location);
+        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
+      }
+    }
+  }, [placeIdParam, locations]);
+
   // スライドバーの状態管理
   const [selectedYear, setSelectedYear] = useState(2025);
 
@@ -66,7 +80,7 @@ export default function Home() {
   // マーカークリック時の処理
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
-        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
+    window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
   };
   const toggleMapLayer = () => {
     setIsSatellite(!isSatellite);
@@ -120,20 +134,20 @@ export default function Home() {
       overflow: 'hidden',
     }}>
 
-            {/* Left slim column: mount SideBar (portal). SideBar renders the fixed hamburger. */}
-            <div style={{
-                width: SLIDEBAR_CLOSED_WIDTH,
-                height: '100%',
-                zIndex: 10,
-                backgroundColor: '#f9f9f9',
-                padding: 8,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 8,
-              }}>
-                <SideBar location={selectedLocation} />
-            </div>
+      {/* Left slim column: mount SideBar (portal). SideBar renders the fixed hamburger. */}
+      <div style={{
+        width: SLIDEBAR_CLOSED_WIDTH,
+        height: '100%',
+        zIndex: 10,
+        backgroundColor: '#f9f9f9',
+        padding: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+      }}>
+        <SideBar location={selectedLocation} />
+      </div>
 
       {/* マップとスライドバーのエリア */}
       <div style={{
