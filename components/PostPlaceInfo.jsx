@@ -2,7 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 
-const PostPlaceInfo = ({ place, posts }) => {
+const PostPlaceInfo = ({ place, posts, children }) => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem', textAlign: 'left', width: '100%', alignItems: 'flex-start' }}>
 
@@ -15,6 +15,11 @@ const PostPlaceInfo = ({ place, posts }) => {
                 </p>
             </div>
 
+            {/* Form Section (Injected via children) */}
+            <div style={{ width: '100%' }}>
+                {children}
+            </div>
+
             {/* Existing Posts - スクロール可能なブロック */}
             <div
                 className="shadow-md"
@@ -22,9 +27,9 @@ const PostPlaceInfo = ({ place, posts }) => {
                     backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: '0.5rem',
-                    padding: '1rem',
+                    padding: '1.5rem',
                     width: '100%',
-                    maxWidth: '448px' // max-w-md approx
+                    // maxWidth: '448px' // max-w-md approx - Removed to unify width
                 }}
             >
                 <h3 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">みんなの投稿</h3>
@@ -33,8 +38,8 @@ const PostPlaceInfo = ({ place, posts }) => {
                     {posts && posts.length > 0 ? (
                         <div className="flex flex-col gap-4 pr-2">
                             {posts.map((post) => (
-                                <div key={post.post_id} className="bg-gray-50 p-4 rounded-lg shadow-sm border text-left">
-                                    <p className="text-gray-800 whitespace-pre-wrap">{post.description}</p>
+                                <div key={post.post_id} className="bg-gray-50 p-6 rounded-lg shadow-sm border text-left">
+                                    <p className="text-gray-800 whitespace-pre-wrap text-xl font-bold">{post.description}</p>
                                     <div className="mt-2 text-xs text-gray-500 flex justify-between items-center">
                                         <span>{post.user_DB?.user_name || "Unknown User"}</span>
                                         <span>{new Date(post.uploaded_date).toLocaleDateString()}</span>
