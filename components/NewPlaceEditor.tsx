@@ -9,6 +9,7 @@ import "./PlaceEditor.css";
 
 export type PlaceInfo = {
   mainImageUrl: string;
+  mainImageFile: File | null;
   placeName: string;
   periodStartYear: number | null;
   periodEndYear: number | null;
@@ -54,6 +55,20 @@ export default function PlaceInfoEditor({
     value.latitude != null && value.longitude != null ? [value.latitude, value.longitude] : null
   );
 
+  // Image preview URL (from file or existing URL)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
+    value.mainImageUrl || null
+  );
+
+  // State for upload progress
+  const [isUploading, setIsUploading] = useState(false);
+
+  // State for image input mode: 'upload' or 'url'
+  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
+
+  // State for URL input
+  const [imageUrlInput, setImageUrlInput] = useState(value.mainImageUrl || '');
+
   useEffect(() => {
     // keep map center in sync when external value changes
     if (value.latitude != null && value.longitude != null) {
@@ -64,15 +79,15 @@ export default function PlaceInfoEditor({
 
   const handleField =
     <K extends keyof PlaceInfo>(key: K) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const next: PlaceInfo = { ...value };
-      if (key === "periodStartYear" || key === "periodEndYear") {
-        next[key] = toYearOrNull(e.target.value) as any;
-      } else {
-        next[key] = e.target.value as any;
-      }
-      onChange(next);
-    };
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const next: PlaceInfo = { ...value };
+        if (key === "periodStartYear" || key === "periodEndYear") {
+          next[key] = toYearOrNull(e.target.value) as any;
+        } else {
+          next[key] = e.target.value as any;
+        }
+        onChange(next);
+      };
 
   // handle clicks (distinct from drag/zoom): place marker and update latitude/longitude
   function MapClickListener() {
@@ -218,6 +233,8 @@ export default function PlaceInfoEditor({
   // small helper to check if URL looks like an image
   function isImageUrl(u?: string) {
     if (!u) return false;
+    // Accept blob: URLs for local previews
+    if (u.startsWith("blob:")) return true;
     try {
       const parsed = new URL(u);
       if (parsed.protocol.startsWith("http") === false) return false;
@@ -227,6 +244,83 @@ export default function PlaceInfoEditor({
       return false;
     }
   }
+
+  // Handle file selection for image upload
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      window.alert('JPG、PNG、WebP、GIF形式のみアップロード可能です');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      window.alert('ファイルサイズは5MB以下である必要があります');
+      return;
+    }
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreviewUrl(previewUrl);
+
+    // Update value with file
+    onChange({ ...value, mainImageFile: file, mainImageUrl: '' });
+  }
+
+  function handleRemoveImage() {
+    if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+    setImagePreviewUrl(null);
+    setImageUrlInput('');
+    onChange({ ...value, mainImageFile: null, mainImageUrl: '' });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
+
+  // Handle URL input apply
+  function handleApplyImageUrl() {
+    const url = imageUrlInput.trim();
+    if (!url) {
+      window.alert('URLを入力してください');
+      return;
+    }
+
+    // Validate URL format
+    try {
+      new URL(url);
+    } catch {
+      window.alert('有効なURLを入力してください');
+      return;
+    }
+
+    // Clean up previous blob URL if exists
+    if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
+    setImagePreviewUrl(url);
+    onChange({ ...value, mainImageFile: null, mainImageUrl: url });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
+
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, [imagePreviewUrl]);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [availableHeight, setAvailableHeight] = useState<number | null>(null);
@@ -356,21 +450,102 @@ export default function PlaceInfoEditor({
               />
               {combinedErrors?.placeName ? <div className="pie-error">{combinedErrors.placeName}</div> : null}
 
-              <label className={`pie-label ${combinedErrors?.mainImageUrl ? "invalid" : ""}`} htmlFor="pie-mainImageUrl" style={{ marginTop: 12 }}>
-                Main picture URL
+              <label className={`pie-label ${combinedErrors?.mainImageUrl ? "invalid" : ""}`} style={{ marginTop: 12 }}>
+                Place Image
               </label>
-              <input
-                id="pie-mainImageUrl"
-                className={`pie-input ${combinedErrors?.mainImageUrl ? "invalid" : ""}`}
-                type="url"
-                inputMode="url"
-                placeholder="https://example.com/your-image.jpg"
-                value={value.mainImageUrl}
-                onChange={handleField("mainImageUrl")}
-                onBlur={handleBlurField}
-                disabled={disabled}
-                spellCheck={false}
-              />
+
+              {/* Tab switcher for upload/URL */}
+              <div className="pie-image-tabs">
+                <button
+                  type="button"
+                  className={`pie-image-tab ${imageInputMode === 'upload' ? 'active' : ''}`}
+                  onClick={() => setImageInputMode('upload')}
+                  disabled={disabled}
+                >
+                  ファイル
+                </button>
+                <button
+                  type="button"
+                  className={`pie-image-tab ${imageInputMode === 'url' ? 'active' : ''}`}
+                  onClick={() => setImageInputMode('url')}
+                  disabled={disabled}
+                >
+                  URL
+                </button>
+              </div>
+
+              {/* File upload mode */}
+              {imageInputMode === 'upload' && (
+                <div className="pie-file-upload">
+                  <input
+                    ref={fileInputRef}
+                    id="pie-mainImageFile"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleFileChange}
+                    disabled={disabled || isUploading}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    className="pie-file-button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={disabled || isUploading}
+                  >
+                    {imagePreviewUrl ? '画像を変更' : '画像を選択'}
+                  </button>
+                  {imagePreviewUrl && (
+                    <button
+                      type="button"
+                      className="pie-file-remove"
+                      onClick={handleRemoveImage}
+                      disabled={disabled || isUploading}
+                    >
+                      削除
+                    </button>
+                  )}
+                  {isUploading && <span className="pie-uploading">アップロード中...</span>}
+                </div>
+              )}
+
+              {/* URL input mode */}
+              {imageInputMode === 'url' && (
+                <div className="pie-url-input">
+                  <input
+                    id="pie-mainImageUrl"
+                    className="pie-input pie-url-field"
+                    type="url"
+                    placeholder="https://example.com/image.jpg"
+                    value={imageUrlInput}
+                    onChange={(e) => setImageUrlInput(e.target.value)}
+                    disabled={disabled}
+                  />
+                  <button
+                    type="button"
+                    className="pie-url-apply"
+                    onClick={handleApplyImageUrl}
+                    disabled={disabled || !imageUrlInput.trim()}
+                  >
+                    適用
+                  </button>
+                  {imagePreviewUrl && (
+                    <button
+                      type="button"
+                      className="pie-file-remove"
+                      onClick={handleRemoveImage}
+                      disabled={disabled}
+                    >
+                      削除
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="pie-help" style={{ marginTop: 4 }}>
+                {imageInputMode === 'upload'
+                  ? 'JPG, PNG, WebP, GIF (5MB max)'
+                  : '画像のURLを入力してください'}
+              </div>
               {combinedErrors?.mainImageUrl ? <div className="pie-error">{combinedErrors.mainImageUrl}</div> : null}
 
               <div className="pie-flex-row" style={{ marginTop: 12 }}>
@@ -419,121 +594,121 @@ export default function PlaceInfoEditor({
             {/* Upper-middle: image preview */}
             <div className="ppe-upper-col ppe-image">
               <div className="ppe-image-box">
-               {isImageUrl(value.mainImageUrl) ? (
-                 // eslint-disable-next-line @next/next/no-img-element
-                 <img
-                   src={value.mainImageUrl!}
-                   alt={value.placeName || "preview"}
-                   className="ppe-image-el"
-                 />
-               ) : (
-                 <div className="ppe-image-placeholder">
-                   No image
-                   <br />
-                   (paste a valid image URL)
-                 </div>
-               )}
-             </div>
-           </div>
-
-          {/* Upper-right: map */}
-          <div className={`ppe-upper-col ppe-map ${combinedErrors?.latitude || combinedErrors?.longitude ? "invalid" : ""}`}>
-            <div className="ppe-map-wrap">
-              <Map center={center} zoom={12} tileUrl={null}>
-                <MapClickListener />
-                {markerPos ? <Marker position={markerPos as any} icon={markerIcon as any} /> : null}
-              </Map>
-
-              <div className="ppe-center-indicator" />
-            </div>
-          </div>
-        </div>
-
-        {/* Lower: semantic headers and editor card */}
-        <div className="ppe-lower">
-          <div className="ppe-lower-editor">
-            <h4 className="ppe-lower-header">Description</h4>
-
-            <div className="editor-card">
-              <div className="ppe-toolbar">
-                <button type="button" onClick={() => insertHeading(1)} disabled={disabled}>
-                  H1
-                </button>
-                <button type="button" onClick={() => insertHeading(2)} disabled={disabled}>
-                  H2
-                </button>
-                <button type="button" onClick={() => insertHeading(3)} disabled={disabled}>
-                  H3
-                </button>
-                <button type="button" onClick={() => wrapSelection("**", "**")} disabled={disabled}>
-                  <strong>B</strong>
-                </button>
-                <button type="button" onClick={() => wrapSelection("*", "*")} disabled={disabled}>
-                  <em>I</em>
-                </button>
-                <button type="button" onClick={insertLink} disabled={disabled}>
-                  Link
-                </button>
-                <button type="button" onClick={insertImage} disabled={disabled}>
-                  Image
-                </button>
-                <button type="button" onClick={insertCode} disabled={disabled}>
-                  Code
-                </button>
-                <button type="button" onClick={() => toggleList(false)} disabled={disabled}>
-                  UL
-                </button>
-                <button type="button" onClick={() => toggleList(true)} disabled={disabled}>
-                  OL
-                </button>
-                <button type="button" onClick={toggleQuote} disabled={disabled}>
-                  Quote
-                </button>
+                {imagePreviewUrl && isImageUrl(imagePreviewUrl) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imagePreviewUrl}
+                    alt={value.placeName || "preview"}
+                    className="ppe-image-el"
+                  />
+                ) : (
+                  <div className="ppe-image-placeholder">
+                    No image
+                    <br />
+                    (Select an image)
+                  </div>
+                )}
               </div>
+            </div>
 
-              <textarea
-                id="pie-description"
-                ref={textareaRef}
-                className={`pie-textarea ppe-textarea ${combinedErrors?.descriptionMarkdown ? "invalid" : ""}`}
-                placeholder="Write the place description in Markdown..."
-                value={value.descriptionMarkdown}
-                onChange={(e) => onChange({ ...value, descriptionMarkdown: e.target.value })}
-                onBlur={handleBlurField}
-                disabled={disabled}
-              />
-              {combinedErrors?.descriptionMarkdown ? <div className="pie-error">{combinedErrors.descriptionMarkdown}</div> : null}
+            {/* Upper-right: map */}
+            <div className={`ppe-upper-col ppe-map ${combinedErrors?.latitude || combinedErrors?.longitude ? "invalid" : ""}`}>
+              <div className="ppe-map-wrap">
+                <Map center={center} zoom={12} tileUrl={null}>
+                  <MapClickListener />
+                  {markerPos ? <Marker position={markerPos as any} icon={markerIcon as any} /> : null}
+                </Map>
+
+                <div className="ppe-center-indicator" />
+              </div>
             </div>
           </div>
 
-          <div className="ppe-lower-preview">
-            <h4 className="ppe-lower-header">Preview</h4>
-            <div className="ppe-preview-body">
-              <MarkdownRenderer source={value.descriptionMarkdown || ""} />
+          {/* Lower: semantic headers and editor card */}
+          <div className="ppe-lower">
+            <div className="ppe-lower-editor">
+              <h4 className="ppe-lower-header">Description</h4>
+
+              <div className="editor-card">
+                <div className="ppe-toolbar">
+                  <button type="button" onClick={() => insertHeading(1)} disabled={disabled}>
+                    H1
+                  </button>
+                  <button type="button" onClick={() => insertHeading(2)} disabled={disabled}>
+                    H2
+                  </button>
+                  <button type="button" onClick={() => insertHeading(3)} disabled={disabled}>
+                    H3
+                  </button>
+                  <button type="button" onClick={() => wrapSelection("**", "**")} disabled={disabled}>
+                    <strong>B</strong>
+                  </button>
+                  <button type="button" onClick={() => wrapSelection("*", "*")} disabled={disabled}>
+                    <em>I</em>
+                  </button>
+                  <button type="button" onClick={insertLink} disabled={disabled}>
+                    Link
+                  </button>
+                  <button type="button" onClick={insertImage} disabled={disabled}>
+                    Image
+                  </button>
+                  <button type="button" onClick={insertCode} disabled={disabled}>
+                    Code
+                  </button>
+                  <button type="button" onClick={() => toggleList(false)} disabled={disabled}>
+                    UL
+                  </button>
+                  <button type="button" onClick={() => toggleList(true)} disabled={disabled}>
+                    OL
+                  </button>
+                  <button type="button" onClick={toggleQuote} disabled={disabled}>
+                    Quote
+                  </button>
+                </div>
+
+                <textarea
+                  id="pie-description"
+                  ref={textareaRef}
+                  className={`pie-textarea ppe-textarea ${combinedErrors?.descriptionMarkdown ? "invalid" : ""}`}
+                  placeholder="Write the place description in Markdown..."
+                  value={value.descriptionMarkdown}
+                  onChange={(e) => onChange({ ...value, descriptionMarkdown: e.target.value })}
+                  onBlur={handleBlurField}
+                  disabled={disabled}
+                />
+                {combinedErrors?.descriptionMarkdown ? <div className="pie-error">{combinedErrors.descriptionMarkdown}</div> : null}
+              </div>
+            </div>
+
+            <div className="ppe-lower-preview">
+              <h4 className="ppe-lower-header">Preview</h4>
+              <div className="ppe-preview-body">
+                <MarkdownRenderer source={value.descriptionMarkdown || ""} />
+              </div>
             </div>
           </div>
+
+          {/* single footer row for helper text + submit button */}
+          <div className="ppe-lower-footer">
+            <div className="footer-left">You can use Markdown here — use the toolbar or type Markdown directly.</div>
+            <div className="footer-right">
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleSubmitClick}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+
         </div>
 
-        {/* single footer row for helper text + submit button */}
-        <div className="ppe-lower-footer">
-               <div className="footer-left">You can use Markdown here — use the toolbar or type Markdown directly.</div>
-               <div className="footer-right">
-                 <button
-                   type="button"
-                   className="btn-primary"
-                   onClick={handleSubmitClick}
-                 >
-                   Submit
-                 </button>
-               </div>
-             </div>
-
+        {/* <div className="ppe-right">
+          <div style={{ fontSize: 13, marginBottom: 8 }}>JSON preview (debug)</div>
+          <pre className="ppe-json">{JSON.stringify(value, null, 2)}</pre>
+        </div> */}
       </div>
-
-      <div className="ppe-right">
-        <div style={{ fontSize: 13, marginBottom: 8 }}>JSON preview (debug)</div>
-        <pre className="ppe-json">{JSON.stringify(value, null, 2)}</pre>
-      </div>
-    </div>
     </>
   );
 }

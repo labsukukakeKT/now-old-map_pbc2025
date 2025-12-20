@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { prisma } from '@/lib/prisma'
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
 export async function POST(request: NextRequest) {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const placeId = formData.get('placeId') as string
-    const uploadType = formData.get('type') as string || 'place' // 'place', 'face', 'profile'
+    const uploadType = formData.get('type') as string || 'place' // 'place', 'face', 'profile', 'place_temp'
 
     // バリデーション
     if (!file) {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // placeId は place タイプの時のみ必須
+    // placeId は place タイプの時のみ必須（place_tempはplaceId不要）
     if (uploadType === 'place' && !placeId) {
       return NextResponse.json(
         { error: 'placeIdが指定されていません' },
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: 'JPG、PNG、WebP形式のみアップロード可能です' },
+        { error: 'JPG、PNG、WebP、GIF形式のみアップロード可能です' },
         { status: 400 }
       )
     }
@@ -44,16 +44,30 @@ export async function POST(request: NextRequest) {
 
     // ファイルを Supabase Storage にアップロード
     const timestamp = Date.now()
-    let fileName: string
-    
-    if (uploadType === 'face') {
-      fileName = `face/${timestamp}.jpg`
-    } else if (uploadType === 'profile') {
-      fileName = `profiles/${timestamp}.jpg`
-    } else {
-      fileName = `places/${placeId}/${timestamp}.jpg`
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+
+    // Get the correct file extension based on content type
+    const extMap: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
     }
-    
+    const ext = extMap[file.type] || 'jpg'
+
+    let fileName: string
+
+    if (uploadType === 'face') {
+      fileName = `face/${timestamp}.${ext}`
+    } else if (uploadType === 'profile') {
+      fileName = `profiles/${timestamp}.${ext}`
+    } else if (uploadType === 'place_temp') {
+      // place_temp: プレイス作成前の一時アップロード用
+      fileName = `places/temp/${timestamp}_${randomSuffix}.${ext}`
+    } else {
+      fileName = `places/${placeId}/${timestamp}.${ext}`
+    }
+
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
@@ -77,8 +91,8 @@ export async function POST(request: NextRequest) {
       data: { publicUrl },
     } = supabaseAdmin.storage.from('photo').getPublicUrl(fileName)
 
-    // face や profile タイプの場合はURLだけ返す
-    if (uploadType === 'face' || uploadType === 'profile') {
+    // face, profile, place_temp タイプの場合はURLだけ返す
+    if (uploadType === 'face' || uploadType === 'profile' || uploadType === 'place_temp') {
       return NextResponse.json({
         success: true,
         url: publicUrl,
