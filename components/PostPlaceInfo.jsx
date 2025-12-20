@@ -1,56 +1,79 @@
 
 import React from 'react';
-import Image from 'next/image';
+import PostPageImage from './PostPageImage';
 
 const PostPlaceInfo = ({ place, posts, children }) => {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem', textAlign: 'left', width: '100%', alignItems: 'flex-start' }}>
+        <div className="flex flex-col gap-8 w-full mb-8">
+            {/* --- Top Section: Split Layout (Left: Name+Photo, Right: Description) --- */}
+            <div className="flex flex-row gap-6 items-start w-full">
 
+                {/* Left Column: Place Name & Photo */}
+                <div className="flex flex-col gap-4 w-1/3 flex-shrink-0">
+                    {/* Place Name */}
+                    <h2 className="text-2xl font-bold text-gray-800 break-words">
+                        {place.place_name}
+                    </h2>
 
-            {/* Place Info */}
-            <div style={{ width: '100%' }}>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">{place.place_name}</h2>
-                <p className="text-gray-600 leading-relaxed mb-4">
-                    {place.place_description || "場所の説明はありません。"}
-                </p>
+                    {/* Photo Component */}
+                    <div>
+                        <PostPageImage place={place} />
+                    </div>
+                </div>
+
+                {/* Right Column: Description */}
+                <div className="w-2/3">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">
+                        説明
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                        {place.place_description || "場所の説明はありません。"}
+                    </p>
+                </div>
             </div>
 
-            {/* Form Section (Injected via children) */}
-            <div style={{ width: '100%' }}>
-                {children}
-            </div>
+            {/* --- Bottom Section: Form & Posts --- */}
+            <div className="flex flex-col gap-6 w-full">
 
-            {/* Existing Posts - スクロール可能なブロック */}
-            <div
-                className="shadow-md"
-                style={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '0.5rem',
-                    padding: '1.5rem',
-                    width: '100%',
-                    boxSizing: 'border-box'
-                    // maxWidth: '448px' // max-w-md approx - Removed to unify width
-                }}
-            >
-                <h3 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">みんなの投稿</h3>
-                {/* 最大高さを設定し、超えたらスクロール */}
-                <div>
-                    {posts && posts.length > 0 ? (
-                        <div className="flex flex-col gap-4 pr-2">
-                            {posts.map((post) => (
-                                <div key={post.post_id} className="bg-gray-50 p-6 rounded-lg shadow-sm border text-left">
-                                    <p className="text-gray-800 whitespace-pre-wrap text-xl font-bold">{post.description}</p>
-                                    <div className="mt-2 text-xs text-gray-500 flex justify-between items-center">
-                                        <span>{post.user_DB?.user_name || "Unknown User"}</span>
-                                        <span>{new Date(post.uploaded_date).toLocaleDateString()}</span>
+                {/* New Post Form (Injected via children) */}
+                <div className="w-full">
+                    {children}
+                </div>
+
+                {/* Existing Posts List */}
+                <div className="w-full bg-white border border-gray-200 rounded-lg p-6 shadow-md box-border">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">
+                        みんなの投稿
+                    </h3>
+
+                    <div>
+                        {posts && posts.length > 0 ? (
+                            <div className="flex flex-col gap-4">
+                                {posts.map((post) => (
+                                    <div
+                                        key={post.post_id}
+                                        className="bg-gray-50 p-6 rounded-lg shadow-sm border text-left"
+                                    >
+                                        <p className="text-gray-800 whitespace-pre-wrap text-xl font-bold">
+                                            {post.description}
+                                        </p>
+                                        <div className="mt-2 text-xs text-gray-500 flex justify-between items-center">
+                                            <span>
+                                                {post.user_DB?.user_name || "Unknown User"}
+                                            </span>
+                                            <span>
+                                                {new Date(post.uploaded_date).toLocaleDateString()}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-gray-500 italic">まだ投稿はありません。</p>
-                    )}
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 italic">
+                                まだ投稿はありません。
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
