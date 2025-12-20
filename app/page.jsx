@@ -151,7 +151,7 @@ export default function Home() {
                             
                         </div>
                         <div className="mb-8">
-                            <PostButton />
+                            <PostButton locations={selectedLocation}/>
                         </div>
                     </div>
                 )}
