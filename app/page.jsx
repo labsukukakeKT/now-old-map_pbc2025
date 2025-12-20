@@ -17,11 +17,43 @@ const MarkerLayer = dynamic(() => import("@/components/MarkerLayer"), {
   ssr: false,
 });
 
+// URLパラメータからplace_idを読み取り、該当する場所を自動選択するコンポーネント
+// useSearchParamsを使用するためSuspense境界内でレンダリングする必要あり
+function PlaceAutoSelector({ locations, onLocationSelect }) {
+  const searchParams = useSearchParams();
+  const urlPlaceId = searchParams?.get('place_id');
+
+  useEffect(() => {
+    if (!urlPlaceId || !locations || locations.length === 0) return;
+
+    const placeIdNum = parseInt(urlPlaceId, 10);
+    if (isNaN(placeIdNum)) return;
+
+    // locations内から該当するplace_idを持つ場所を検索
+    const targetLocation = locations.find(loc => {
+      const locId = loc.place_id ?? loc.id;
+      return locId === placeIdNum;
+    });
+
+    if (targetLocation) {
+      // 見つかったらその場所を選択し、サイドバーを開く
+      onLocationSelect(targetLocation);
+      // 少し遅延を入れてサイドバーを開く（地図の読み込み完了を待つ）
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
+      }, 300);
+    }
+  }, [urlPlaceId, locations, onLocationSelect]);
+
+  return null; // このコンポーネントはUIを持たない
+}
+
 
 
 // サイドバーの幅
 const SLIDEBAR_OPNE_WIDTH = '400px';
 const SLIDEBAR_CLOSED_WIDTH = '80px';
+
 
 
 export default function Home() {
@@ -62,33 +94,6 @@ export default function Home() {
 
   // 選択された場所の管理
   const [selectedLocation, setSelectedLocation] = useState(null);
-
-  // URLパラメータからplace_idを取得
-  const searchParams = useSearchParams();
-  const urlPlaceId = searchParams?.get('place_id');
-
-  // URLパラメータにplace_idがある場合、locationsから該当するピンを自動選択
-  useEffect(() => {
-    if (!urlPlaceId || locations.length === 0) return;
-
-    const placeIdNum = parseInt(urlPlaceId, 10);
-    if (isNaN(placeIdNum)) return;
-
-    // locations内から該当するplace_idを持つ場所を検索
-    const targetLocation = locations.find(loc => {
-      const locId = loc.place_id ?? loc.id;
-      return locId === placeIdNum;
-    });
-
-    if (targetLocation) {
-      // 見つかったらその場所を選択し、サイドバーを開く
-      setSelectedLocation(targetLocation);
-      // 少し遅延を入れてサイドバーを開く（地図の読み込み完了を待つ）
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
-      }, 300);
-    }
-  }, [urlPlaceId, locations]);
 
   // スライドバーの状態管理
   const [selectedYear, setSelectedYear] = useState(2025);
@@ -169,6 +174,11 @@ export default function Home() {
       gridTemplateColumns: isCompact ? `0 1fr` : `${SLIDEBAR_CLOSED_WIDTH} 1fr`,
       overflow: 'hidden',
     }}>
+
+      {/* URLパラメータからplace_idを読み取り自動選択（Suspense必須） */}
+      <Suspense fallback={null}>
+        <PlaceAutoSelector locations={locations} onLocationSelect={handleLocationSelect} />
+      </Suspense>
 
       {/* Left slim column: mount SideBar (portal). SideBar renders the fixed hamburger. */}
       <div style={{
