@@ -21,6 +21,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      console.log("Sending login request...")
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -29,7 +30,9 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       })
 
+      console.log("Response status:", response.status)
       const data = await response.json()
+      console.log("Response data:", data)
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed")
@@ -37,12 +40,15 @@ export default function LoginPage() {
 
       // Store session in localStorage
       if (data.session) {
+        console.log("Storing user data in localStorage...")
         localStorage.setItem("session", JSON.stringify(data.session))
         localStorage.setItem("user", JSON.stringify(data.user))
       }
 
+      console.log("Navigating to /account...")
       router.push("/account")
     } catch (err: any) {
+      console.error("Login error:", err)
       setError(err.message || "Something went wrong")
     } finally {
       setLoading(false)

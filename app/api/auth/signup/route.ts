@@ -8,11 +8,18 @@ function hashPassword(password: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const { email, password, user_name, user_photo_url } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
+        { status: 400 }
+      )
+    }
+
+    if (!user_name || !user_name.trim()) {
+      return NextResponse.json(
+        { error: "User name is required" },
         { status: 400 }
       )
     }
@@ -32,12 +39,14 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = hashPassword(password)
 
-    // Create user with default name
+    // Create user with provided data
     const user = await prisma.user_DB.create({
       data: {
         email,
         password: hashedPassword,
-        user_name: email.split("@")[0], // Use email prefix as default username
+        user_name: user_name.trim(),
+        user_description: null,
+        user_photo_url: user_photo_url || null,
       },
     })
 
