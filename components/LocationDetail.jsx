@@ -1,9 +1,17 @@
 'use client'
 
+import { useState, useRef } from 'react'
+
 /**
  * 選択された場所の詳細を表示するコンポーネント
  */
 export default function LocationDetail({ location }) {
+    const [isUploading, setIsUploading] = useState(false)
+    const [uploadError, setUploadError] = useState('')
+    const [uploadSuccess, setUploadSuccess] = useState('')
+    const [photoUrl, setPhotoUrl] = useState(location?.place_photo_url)
+    const fileInputRef = useRef(null)
+
     if (!location) {
         return (
             <div style={{
@@ -14,6 +22,49 @@ export default function LocationDetail({ location }) {
                 <p>地図上のピンをクリックして<br/>場所の詳細を表示</p>
             </div>
         );
+    }
+
+    const handleFileSelect = async (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsUploading(true)
+        setUploadError('')
+        setUploadSuccess('')
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('placeId', location.place_id)
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                setUploadError(data.error || 'アップロードに失敗しました')
+                return
+            }
+
+            setPhotoUrl(data.photoUrl)
+            setUploadSuccess('画像をアップロードしました')
+            setTimeout(() => setUploadSuccess(''), 3000)
+        } catch (error) {
+            console.error('Upload error:', error)
+            setUploadError('アップロード中にエラーが発生しました')
+        } finally {
+            setIsUploading(false)
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''
+            }
+        }
+    }
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click()
     }
 
     return (
@@ -45,11 +96,15 @@ export default function LocationDetail({ location }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'hidden'
-            }}>
-                {location.place_photo_url || location.photoUrl ? (
+                overflow: 'hidden',
+                position: 'relative',
+                cursor: photoUrl ? 'default' : 'pointer'
+            }}
+            onClick={!photoUrl ? handleUploadClick : undefined}
+            >
+                {photoUrl ? (
                     <img 
-                        src={location.place_photo_url || location.photoUrl} 
+                        src={photoUrl} 
                         alt={location.place_name || location.title}
                         style={{
                             width: '100%',
@@ -58,9 +113,72 @@ export default function LocationDetail({ location }) {
                         }}
                     />
                 ) : (
-                    <span style={{ color: '#999' }}>画像なし</span>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        height: '100%',
+                        cursor: 'pointer'
+                    }}>
+                        <span style={{ color: '#999', fontSize: '14px', marginBottom: '8px' }}>
+                            画像をアップロード
+                        </span>
+                        <button
+                            onClick={handleUploadClick}
+                            disabled={isUploading}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#2196F3',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: isUploading ? 'not-allowed' : 'pointer',
+                                fontSize: '12px',
+                                opacity: isUploading ? 0.6 : 1
+                            }}
+                        >
+                            {isUploading ? 'アップロード中...' : '画像を選択'}
+                        </button>
+                    </div>
                 )}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                />
             </div>
+
+            {/* エラーメッセージ */}
+            {uploadError && (
+                <div style={{
+                    padding: '10px',
+                    backgroundColor: '#ffebee',
+                    color: '#c62828',
+                    borderRadius: '4px',
+                    marginBottom: '15px',
+                    fontSize: '12px'
+                }}>
+                    {uploadError}
+                </div>
+            )}
+
+            {/* 成功メッセージ */}
+            {uploadSuccess && (
+                <div style={{
+                    padding: '10px',
+                    backgroundColor: '#e8f5e9',
+                    color: '#2e7d32',
+                    borderRadius: '4px',
+                    marginBottom: '15px',
+                    fontSize: '12px'
+                }}>
+                    {uploadSuccess}
+                </div>
+            )}
 
             {/* 年代情報 */}
             {(location.place_era_start || location.eraStart) && (
