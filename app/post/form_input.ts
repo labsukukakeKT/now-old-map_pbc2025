@@ -29,7 +29,7 @@ export async function createPost(formData: FormData) {
       place_id: Number(placeIdString),
       
       // user_idは一旦 3 で固定
-      user_id: 3, 
+      user_id: 3,  
     },
   })
 

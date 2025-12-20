@@ -40,6 +40,23 @@ async function main() {
       create: p,
     })
   }
+  const users: Prisma.user_DBCreateInput[] = [
+    {
+      user_id: 3,
+      user_name: '山田太郎',
+      user_description: null,
+    },
+  ]
+  for (const u of users) {
+    await prisma.user_DB.upsert({
+      where: { user_id: u.user_id },
+      update: {
+        user_name: u.user_name,
+        user_description: u.user_description,
+      },
+      create: u,
+    })
+  }
 }
 
 main()

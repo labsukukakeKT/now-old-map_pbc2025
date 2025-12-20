@@ -41,7 +41,7 @@ export default function PostPage({ searchParams }) {
         >
           決定（保存）
         </button>
-        
+         
       </form>
     </div>
   )
