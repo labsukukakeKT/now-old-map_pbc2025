@@ -1,87 +1,82 @@
-'use client'
 
-import { createPost } from './form_input'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import PostPlaceInfo from '@/components/PostPlaceInfo'
+import PostForm from './PostForm'
 
-// Client Componentなので searchParams は直接受け取るか、useSearchParamsを使う
-// Next.js 13+ app dir pageで searchParams prop はServer ComponentでもClient Componentでも受け取れるが
-// use client をつけると非同期の扱いが変わる可能性がある。
-// ただしここではシンプルに props から取る。
-export default function PostPage({ searchParams }) {
-  const router = useRouter()
-  const [userId, setUserId] = useState(null)
+export default async function PostPage({ searchParams }) {
+  const placeIdStr = searchParams.place_id;
 
-  // URLの ?place_id=XXX から値を取り出します
-  const placeId = searchParams.place_id;
-
-  useEffect(() => {
-    // localStorageからユーザー情報を取得
-    const sessionStr = localStorage.getItem('session')
-    if (sessionStr) {
-      try {
-        const session = JSON.parse(sessionStr)
-        if (session && session.userId) {
-          setUserId(session.userId)
-        }
-      } catch (e) {
-        console.error("Failed to parse session", e)
-      }
-    } else {
-      // ログインしていなければログイン画面へ飛ばす、などの処理が望ましいが
-      // ここでは一旦そのまま、あるいはアラートを出す
-      // alert("ログインしてください")
-      // router.push('/login')
-    }
-  }, [router])
-
-  if (!userId) {
-    return (
-      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-center">
-        <p className="mb-4">投稿するにはログインが必要です。</p>
-        <a href="/login" className="text-blue-600 hover:underline">ログインする</a>
-      </div>
-    )
+  if (!placeIdStr) {
+    return <div className="text-center mt-10 text-red-500">Error: Place ID is missing.</div>
   }
 
+  const placeId = Number(placeIdStr);
+  if (isNaN(placeId)) {
+    return <div className="text-center mt-10 text-red-500">Error: Invalid Place ID.</div>
+  }
+
+  // データベースから場所情報を取得
+  const place = await prisma.place_DB.findUnique({
+    where: { place_id: placeId },
+  })
+
+  if (!place) {
+    notFound();
+  }
+
+  // データベースからこの場所に関連する投稿を取得
+  const posts = await prisma.post.findMany({
+    where: { place_id: placeId },
+    include: {
+      user_DB: true,
+    },
+    orderBy: {
+      uploaded_date: 'desc',
+    },
+  })
+
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">投稿を作成</h1>
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      {/* ★変更点1: 全体の幅を少し広げて(6xl)、400pxの画像が合っても窮屈にならないようにします */}
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-10">投稿と場所の情報</h1>
 
-      {/* placeIdが正しく取れているか確認用 */}
-      <p className="text-sm text-gray-500 mb-4">選択中の場所ID: {placeId}</p>
+        {/* ★変更点2: グリッドの定義を変更。[1fr_400px] で「左側は自動・右側は400px固定」にします */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 items-start">
 
-      <form action={createPost} className="flex flex-col gap-4">
+          {/* Left Column: Info, Posts */}
+          {/* col-span-2 などの指定は削除し、グリッドの左側エリアに自然に収まるようにします */}
+          <div className="flex flex-col gap-8">
+            <PostPlaceInfo place={place} posts={posts} />
+          </div>
 
-        {/* place_id を送信 */}
-        <input type="hidden" name="place_id" value={placeId} />
+          {/* Right Column: Photo & Form - デスクトップ(lg以上)でのみ表示 */}
+          <div className="hidden lg:block sticky top-10 flex flex-col gap-6">
+            {/* Photo Section */}
+            {place.place_photo_url ? (
+              <div className="relative w-full h-[400px] rounded-lg overflow-hidden shadow-lg">
+                <Image
+                  src={place.place_photo_url}
+                  alt={place.place_name}
+                  // fill
+                  className="object-cover"
+                  height={400}
+                  width={400}
+                />
+              </div>
+            ) : (
+              <div className="w-full h-[400px] bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 shadow-inner">
+                <span className="text-lg">No Image Available</span>
+              </div>
+            )}
 
-        {/* user_id を送信 (localStorageから取得した値) */}
-        <input type="hidden" name="user_id" value={userId} />
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="description" className="font-semibold text-gray-700">
-            内容
-          </label>
-
-          <textarea
-            id="description"
-            name="description"
-            rows={5}
-            placeholder="ここに投稿内容を入力してください..."
-            className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+            {/* Form Section (Moved to Right) */}
+            <PostForm placeId={placeIdStr} />
+          </div>
         </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-200 ease-in-out"
-        >
-          決定（保存）
-        </button>
-
-      </form>
+      </div>
     </div>
   )
 }
