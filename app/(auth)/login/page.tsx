@@ -3,10 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -55,56 +51,154 @@ export default function LoginPage() {
     }
   }
 
+  // Styles
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    padding: '16px',
+    backgroundColor: '#f9fafb'
+  }
+
+  const cardStyle: React.CSSProperties = {
+    width: '100%',
+    maxWidth: '400px',
+    backgroundColor: '#fff',
+    borderRadius: '12px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    padding: '32px',
+  }
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    marginBottom: '8px',
+    color: '#111827',
+    textAlign: 'center'
+  }
+
+  const subtitleStyle: React.CSSProperties = {
+    color: '#6b7280',
+    marginBottom: '24px',
+    fontSize: '14px',
+    textAlign: 'center'
+  }
+
+  const formGroupStyle: React.CSSProperties = {
+    marginBottom: '16px'
+  }
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '6px'
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px 16px',
+    fontSize: '16px',
+    border: '1px solid #d1d5db',
+    borderRadius: '8px',
+    outline: 'none',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s'
+  }
+
+  const buttonStyle: React.CSSProperties = {
+    display: 'block',
+    width: '100%',
+    padding: '12px 24px',
+    backgroundColor: loading ? '#93c5fd' : '#3b82f6',
+    color: '#fff',
+    borderRadius: '8px',
+    border: 'none',
+    fontWeight: '600',
+    fontSize: '16px',
+    textAlign: 'center',
+    cursor: loading ? 'not-allowed' : 'pointer',
+    transition: 'background-color 0.2s',
+    boxSizing: 'border-box'
+  }
+
+  const errorStyle: React.CSSProperties = {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+    padding: '12px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    marginBottom: '16px'
+  }
+
+  const footerStyle: React.CSSProperties = {
+    marginTop: '24px',
+    textAlign: 'center',
+    fontSize: '14px',
+    color: '#6b7280'
+  }
+
+  const linkStyle: React.CSSProperties = {
+    color: '#3b82f6',
+    textDecoration: 'none',
+    fontWeight: '600'
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Log In</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
-        </CardHeader>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h1 style={titleStyle}>ログイン</h1>
+        <p style={subtitleStyle}>アカウントにアクセスするための情報を入力してください</p>
+
         <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+          {error && (
+            <div style={errorStyle}>
+              {error}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Log In"}
-            </Button>
-            <p className="text-sm text-center text-gray-600">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-blue-600 hover:underline">
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
+          )}
+
+          <div style={formGroupStyle}>
+            <label htmlFor="email" style={labelStyle}>メールアドレス</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label htmlFor="password" style={labelStyle}>パスワード</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={inputStyle}
+            />
+          </div>
+
+          <button type="submit" style={buttonStyle} disabled={loading}>
+            {loading ? "ログイン中..." : "ログイン"}
+          </button>
         </form>
-      </Card>
+
+        <div style={footerStyle}>
+          アカウントをお持ちでない方は{" "}
+          <Link href="/signup" style={linkStyle}>
+            サインアップ
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }
+
