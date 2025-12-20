@@ -30,9 +30,13 @@ model post {
 
 model user_DB {
   user_id           Int    @id @default(autoincrement())
+  email             String @unique
+  password          String
   user_name         String
   user_description  String?
   user_photo_url    String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
   // 逆参照（1人のユーザーが複数Postを持つ）
   posts             post[]

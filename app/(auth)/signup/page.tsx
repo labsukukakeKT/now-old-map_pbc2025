@@ -47,7 +47,7 @@ export default function SignupPage() {
         throw new Error(data.error || "Signup failed")
       }
 
-      router.push("/login")
+      router.push("/account")
     } catch (err: any) {
       setError(err.message || "Something went wrong")
     } finally {
