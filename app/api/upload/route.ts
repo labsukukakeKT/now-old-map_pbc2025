@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const placeId = formData.get('placeId') as string
+    const uploadType = formData.get('type') as string || 'place' // 'place', 'face', 'profile'
 
     // バリデーション
     if (!file) {
@@ -19,7 +20,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!placeId) {
+    // placeId は place タイプの時のみ必須
+    if (uploadType === 'place' && !placeId) {
       return NextResponse.json(
         { error: 'placeIdが指定されていません' },
         { status: 400 }
@@ -42,7 +44,16 @@ export async function POST(request: NextRequest) {
 
     // ファイルを Supabase Storage にアップロード
     const timestamp = Date.now()
-    const fileName = `places/${placeId}/${timestamp}.jpg`
+    let fileName: string
+    
+    if (uploadType === 'face') {
+      fileName = `face/${timestamp}.jpg`
+    } else if (uploadType === 'profile') {
+      fileName = `profiles/${timestamp}.jpg`
+    } else {
+      fileName = `places/${placeId}/${timestamp}.jpg`
+    }
+    
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
@@ -65,6 +76,14 @@ export async function POST(request: NextRequest) {
     const {
       data: { publicUrl },
     } = supabaseAdmin.storage.from('photo').getPublicUrl(fileName)
+
+    // face や profile タイプの場合はURLだけ返す
+    if (uploadType === 'face' || uploadType === 'profile') {
+      return NextResponse.json({
+        success: true,
+        url: publicUrl,
+      })
+    }
 
     // Prisma で place_DB の place_photo_url を更新
     const updatedPlace = await prisma.place_DB.update({
