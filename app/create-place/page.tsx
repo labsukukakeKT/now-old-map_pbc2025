@@ -1,10 +1,25 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import PlaceInfoEditor, { PlaceInfo } from "../../components/NewPlaceEditor";
+import React, { Suspense, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 
-export default function ExamplePlaceEditorPage() {
+const PlaceInfoEditor = dynamic(
+  () => import("../../components/NewPlaceEditor"),
+  { ssr: false }
+);
+
+export type PlaceInfo = {
+  mainImageUrl: string;
+  placeName: string;
+  periodStartYear: number | null;
+  periodEndYear: number | null;
+  descriptionMarkdown: string;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+function PlaceEditorContent() {
   const search = useSearchParams();
   const qLat = search?.get("lat");
   const qLng = search?.get("lng");
@@ -32,5 +47,13 @@ export default function ExamplePlaceEditorPage() {
       <PlaceInfoEditor value={place} onChange={setPlace} />
       <pre style={{ marginTop: 24, background: "#f6f8fa", padding: 12 }}>{JSON.stringify(place, null, 2)}</pre>
     </div>
+  );
+}
+
+export default function ExamplePlaceEditorPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
+      <PlaceEditorContent />
+    </Suspense>
   );
 }

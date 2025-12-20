@@ -1,18 +1,17 @@
-import { Prisma, PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  const places: Prisma.place_DBCreateInput[] = [
+  const places = [
     {
       place_id: 1,
       place_name: '東京科学大学すずかけ台キャンパス',
       lat: 35.51417560214643,
       lng: 139.48364376463735,
       place_description: '旧東京工業です。',
-      place_photo_url: null,
-      // DateTime? なので Date 型を入れる（年だけIntは不可）
-      place_era_start: 1999,
-      place_era_end: null,
+      place_photo_url: null as string | null,
+      place_era_start: 1999 as number | null,
+      place_era_end: null as number | null,
     },
     {
       place_id: 2,
@@ -20,9 +19,9 @@ async function main() {
       lat: 35.60485178683271,
       lng: 139.68385410808457,
       place_description: '旧東京工業大学です。',
-      place_photo_url: null,
-      place_era_start: 1924,
-      place_era_end: 0,
+      place_photo_url: null as string | null,
+      place_era_start: 1924 as number | null,
+      place_era_end: 0 as number | null,
     },
   ]
 
@@ -37,14 +36,22 @@ async function main() {
         place_era_start: p.place_era_start,
         place_era_end: p.place_era_end,
       },
-      create: p,
+      create: {
+        place_name: p.place_name,
+        lat: p.lat,
+        lng: p.lng,
+        place_description: p.place_description,
+        place_photo_url: p.place_photo_url,
+        place_era_start: p.place_era_start,
+        place_era_end: p.place_era_end,
+      },
     })
   }
-  const users: Prisma.user_DBCreateInput[] = [
+  const users = [
     {
       user_id: 3,
       user_name: '山田太郎',
-      user_description: null,
+      user_description: null as string | null,
       email: 'taro@example.com',
       // SHA256 hash of "password123"
       password: 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f',
@@ -59,7 +66,12 @@ async function main() {
         email: u.email,
         password: u.password,
       },
-      create: u,
+      create: {
+        user_name: u.user_name,
+        user_description: u.user_description,
+        email: u.email,
+        password: u.password,
+      },
     })
   }
 }

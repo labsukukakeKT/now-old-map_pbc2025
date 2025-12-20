@@ -10,9 +10,8 @@
     // "outDir": "./dist",
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
+    "module": "esnext",
     "target": "esnext",
-    "types": [],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -48,8 +47,7 @@
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    // "moduleResolution": "node",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "plugins": [
       {
