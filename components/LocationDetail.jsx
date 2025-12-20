@@ -215,7 +215,7 @@ export default function LocationDetail({ location }) {
             )}
 
             {/* 年代情報 */}
-            {(location.place_era_start || location.eraStart) && (
+            {(location.place_era_start) && (
                 <div style={{
                     marginBottom: '15px',
                     padding: '8px',
@@ -224,11 +224,7 @@ export default function LocationDetail({ location }) {
                 }}>
                     <strong style={{ color: '#666' }}>年代: </strong>
                     <span style={{ color: '#333' }}>
-                        {location.place_era_start ? new Date(location.place_era_start).getFullYear() : location.eraStart}年
-                        {(location.place_era_end || location.eraEnd) &&
-                            (location.place_era_end ? new Date(location.place_era_end).getFullYear() : location.eraEnd) !== 9999 && (
-                                <> - {location.place_era_end ? new Date(location.place_era_end).getFullYear() : location.eraEnd}年</>
-                            )}
+                        {location.place_era_start || '-'}年 - {location.place_era_end ? `${location.place_era_end}年` : '現存'}
                     </span>
                 </div>
             )}

@@ -28,29 +28,57 @@ const SLIDEBAR_CLOSED_WIDTH = '80px';
 
 
 export default function Home() {
-  // 場所データを保持するステート
-  const [locations, setLocations] = useState([]);
-  // マウント時にAPIからデータの取得
-  useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        const response = await fetch('/api/locations');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.status}`);
-        }
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setLocations(data);
-        } else if (Array.isArray(data?.locations)) {
-          // API が { locations: [...] } の場合にも対応
-          setLocations(data.locations);
-        } else {
-          setLocations([]);
-        }
-      } catch (error) {
-        console.error('fetch locations error', error);
-        setLocations([]);
-      }
+    // 場所データを保持するステート
+    const [locations, setLocations] = useState([]);
+    // マウント時にAPIからデータの取得
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const response = await fetch('/api/locations');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('[fetchLocations] raw data:', data);
+                if (Array.isArray(data)) {
+                    console.log('[fetchLocations] data is array, length:', data.length);
+                    setLocations(data);
+                } else if (Array.isArray(data?.locations)) {
+                    // API が { locations: [...] } の場合にも対応
+                    console.log('[fetchLocations] data.locations is array, length:', data.locations.length);
+                    setLocations(data.locations);
+                } else {
+                    console.log('[fetchLocations] data is neither array nor has locations property');
+                    setLocations([]);
+                }
+            } catch (error) {
+                console.error('fetch locations error', error);
+                setLocations([]);
+            }
+        };
+        fetchLocations();
+    }, [])
+    const [isSatellite, setIsSatellite] = useState(false);
+    // 配列でなければ空配列にフォールバック
+    const safeLocations = Array.isArray(locations) ? locations : [];
+
+
+    // 選択された場所の管理
+    const [selectedLocation, setSelectedLocation] = useState(null);
+
+    // スライドバーの状態管理
+    const [selectedYear, setSelectedYear] = useState(2025);
+
+    // 地図タイルの管理
+    const [tileLoader, setTileLoader] = useState(null);
+
+    // マーカークリック時の処理
+    const handleLocationSelect = (location) => {
+        setSelectedLocation(location);
+        window.dispatchEvent(new CustomEvent("open-sidebar", { detail: { pane: "detail" } }));
+    };
+    const toggleMapLayer = () => {
+        setIsSatellite(!isSatellite);
     };
     fetchLocations();
   }, [])
@@ -181,50 +209,94 @@ export default function Home() {
           gap: '20px', // ボタンとスライダーの間隔
           height: '80px', // 全体の高さ
         }}>
-          <button
-            onClick={toggleMapLayer}
-            aria-label="Toggle satellite"
-            style={{
-              minWidth: '80px',
-              height: '40px',
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: 'pointer',
-              padding: '6px 10px',
-              borderRadius: 6,
-              border: '1px solid #ddd',
-              background: isSatellite ? '#eef4ff' : '#fff',
-              flexShrink: 0,
-            }}
-          >
-            {isSatellite ? '標準' : '航空'}
-          </button>
 
-          <div style={{
-            flexGrow: 1, // 残りのスペースを使う
-            position: 'relative',
-          }}>
-            <YearSlider onChange={setSelectedYear} />
-          </div>
-        </div>
+            {/* Left slim column: mount SideBar (portal). SideBar renders the fixed hamburger. */}
+            <div style={{
+                width: SLIDEBAR_CLOSED_WIDTH,
+                height: '100%',
+                zIndex: 10,
+                backgroundColor: '#f9f9f9',
+                padding: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
+            }}>
+                <SideBar location={selectedLocation} />
+            </div>
+
+            {/* マップとスライダーのエリア */}
+            <div style={{
+                gridColumn: '2 / 3',
+                width: '100%',
+                height: '100%',
+                zIndex: 0,
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column', // 上下に並べる
+            }}>
+
+                <div style={{
+                    width: '100%',
+                    paddingLeft: SLIDEBAR_OPNE_WIDTH, // 左側にサイドバー分の余白
+                    boxSizing: 'border-box', // paddingを含めた幅計算にする
+                    backgroundColor: '#fff',
+                    borderBottom: '1px solid #ddd',
+                    flexShrink: 0,
+                    position: 'relative',
+                    zIndex: 10,
+                    display: 'flex', // 横並びにする
+                    alignItems: 'center', // 上下中央揃え
+                    justifyContent: 'flex-end', // 右寄せ
+                    paddingRight: '10px', // 右端に少し余白
+                    gap: '20px', // ボタンとスライダーの間隔
+                    height: '80px', // 全体の高さ
+                }}>
+                    <button
+                        onClick={toggleMapLayer}
+                        aria-label="Toggle satellite"
+                        style={{
+                            minWidth: '80px',
+                            height: '40px',
+                            fontWeight: 600,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                            padding: '6px 10px',
+                            borderRadius: 6,
+                            border: '1px solid #ddd',
+                            background: isSatellite ? '#eef4ff' : '#fff',
+                            flexShrink: 0,
+                        }}
+                    >
+                        {isSatellite ? '標準' : '航空'}
+                    </button>
+
+                    <div style={{
+                        flexGrow: 1, // 残りのスペースを使う
+                        position: 'relative',
+                    }}>
+                        <YearSlider onChange={setSelectedYear} />
+                    </div>
+                </div>
 
 
-        {/* マップエリア */}
-        <div style={{
-          flexGrow: 1, // 残りの高さをすべて使う
-          width: '100%',
-          position: 'relative',
-          zIndex: 0,
-        }}>
-          <Map isSatellite={isSatellite} tileUrl={mapData?.url} >
-            <MarkerLayer
-              locations={locations}
-              onLocationSelect={handleLocationSelect}
-            />
-            <MapController location={selectedLocation} />
-          </Map>
-        </div>
-      </div>
-    </main>
-  );
+                {/* マップエリア */}
+                <div style={{
+                    flexGrow: 1, // 残りの高さをすべて使う
+                    width: '100%',
+                    position: 'relative',
+                    zIndex: 0,
+                }}>
+                    <Map isSatellite={isSatellite} tileUrl={mapData?.url} >
+                        <MarkerLayer
+                            locations={locations}
+                            selectedYear={selectedYear}
+                            onLocationSelect={handleLocationSelect}
+                        />
+                        <MapController location={selectedLocation} />
+                    </Map>
+                </div>
+            </div>
+        </main>
+    );
 }
