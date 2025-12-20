@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
                         place_id: true,
                         place_name: true,
                         place_photo_url: true,
+                        lat: true,
+                        lng: true,
                     },
                 },
             },
