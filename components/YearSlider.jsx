@@ -42,7 +42,7 @@ export default function YearSlider({ onChange }) {
     }, []);
 
     return (
-        <div style={{ padding: '0 40px 40px 40px' }}> {/* Pipsが表示されるスペースを確保 */}
+        <div style={{ padding: '20px 40px 40px 40px' }}> {/* Pipsが表示されるスペースを確保 */}
             <div ref={sliderRef}></div>
         </div>
     );

@@ -24,8 +24,7 @@ export default function MenuBar() {
 
   const handleHomeClick = (e) => {
     e.preventDefault();
-    router.refresh();
-    router.push("/");
+    window.location.href = "/";
   };
 
   const isHome = pathname === "/";

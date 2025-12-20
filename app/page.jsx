@@ -147,16 +147,15 @@ export default function Home() {
       }}>
 
         <div style={{
-          height: 'max(80px,10%)',
-          width: '100%',
+          height: '80px', // Pipsを表示するため少し高めに設定
+          width: '75%',
+          marginLeft: 'auto',
           backgroundColor: '#fff',
           borderBottom: '1px solid #ddd',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',     // flush to right
-          gap: 12,
-          padding: '8px', // add top padding for tooltip room
-          boxSizing: 'border-box',
+          paddingTop: '30px', // ツールチップの重なり防止
+          flexShrink: 0,
+          position: 'relative',
+          zIndex: 10,
         }}>
           <button
             onClick={toggleMapLayer}
