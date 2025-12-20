@@ -199,12 +199,15 @@ export default function Home() {
       }}>
 
         <div style={{
-          height: '70px', // Pipsを表示するため少し高めに設定
+          height: '80px', // Pipsを表示するため少し高めに設定
           width: '75%',
           marginLeft: 'auto',
           backgroundColor: '#fff',
           borderBottom: '1px solid #ddd',
           paddingTop: '30px', // ツールチップの重なり防止
+          flexShrink: 0,
+          position: 'relative',
+          zIndex: 10,
         }}>
           <YearSlider onChange={setSelectedYear} />
         </div>
