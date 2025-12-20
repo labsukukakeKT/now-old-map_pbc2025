@@ -1,0 +1,22 @@
+-- 1. プロフィールテーブルの作成
+create table public.profiles (
+  id uuid references auth.users on delete cascade not null primary key,
+  username text,
+  avatar_url text,
+  updated_at timestamp with time zone
+);
+
+-- 2. 自動作成する関数の定義
+create function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, username)
+  values (new.id, new.raw_user_meta_data->>'username'); -- 登録時のメタデータから取得
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- 3. ユーザー登録を検知して関数を実行するトリガー
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();

@@ -1,10 +1,11 @@
 'use client'
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import YearSlider from "@/components/YearSlider";
 import LocationDetail from "@/components/LocationDetail";
 import PostButton from '@/components/PostButton'
 import HunbergerButton from "@/components/HunbergerButton";
+import TileLoader from "@/utils/tileloader";
 
 const Map = dynamic(() => import("@/components/Map"), {
     ssr: false,
@@ -20,9 +21,6 @@ const MarkerLayer = dynamic(() => import("@/components/MarkerLayer"), {
 const SLIDEBAR_OPNE_WIDTH = '400px';
 const SLIDEBAR_CLOSED_WIDTH = '80px';
 
-// 地図のURL
-// const TOPO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png";
-// const PHOTO_TILE_URL = "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg";
 
 export default function Home() {
     // 場所データを保持するステート
@@ -73,7 +71,10 @@ export default function Home() {
 
     // スライドバーの状態管理
     const [selectedYear, setSelectedYear] = useState(2025);
-    
+
+    // 地図タイルの管理
+    const [tileLoader, setTileLoader] = useState(null);
+
     // マーカークリック時の処理
     const handleLocationSelect = (location) => {
         setSelectedLocation(location);
@@ -82,19 +83,30 @@ export default function Home() {
     const toggleMapLayer = () => {
         setIsSatellite(!isSatellite);
     };
-    
 
-    // 地形図/航空写真の切り替え
-    // const [isTopoMap, setIsTopleMap] = useState(true);
-    // function toggleTopoMap() {
-    //     setIsTopleMap(!isTopoMap);
-    // };
-    // let tile_url;
-    // if (isTopoMap) {
-    //     tile_url = TOPO_TILE_URL;
-    // } else {
-    //     tile_url = PHOTO_TILE_URL;
-    // }
+
+    // TileLoaderの初期化
+    useEffect(() => {
+        const loader = new TileLoader(
+            ["/tiles/topo_tile.json", "/tiles/photo_tile.json", "/tiles/kjmap_tile.json", "tiles/gsi_standard_tile.json"]
+        );
+
+        // すべてのJSON読み込みが完了したらコンストラクタ2を実行
+        Promise.all(loader.data_promise).then(() => {
+            loader.constructor2();
+            setTileLoader(loader);
+        });
+    }, []);
+
+    // TileLoaderを使ってURLを決定
+    const mapData = useMemo(() => {
+        if (!tileLoader) return null;
+
+        // isSatelliteがtrueなら 'photo'、falseなら 'topo' を渡す
+        const type = isSatellite ? "photo" : "topo";
+        // 現在の緯度経度は必要に応じて渡してください（kjmap用）
+        return tileLoader.GetUrl(selectedYear, type);
+    }, [tileLoader, selectedYear, isSatellite]);
 
 
     return (
@@ -106,7 +118,7 @@ export default function Home() {
             overflow: 'hidden',
         }}>
 
-                
+
             {/* サイドバー */}
             <div style={{
                 position: 'absolute',
@@ -120,25 +132,25 @@ export default function Home() {
                 display: 'flex',
                 flexDirection: 'column',
             }}>
-                
+
                 {/* サイドバーの開閉ボタン */}
                 <HunbergerButton onClick={toggleSidebar} />
                 <div>
                     <button
-                      onClick={toggleMapLayer}
-                      style={{
-                        width: '60px',
-                        height: '60px',
-                        fontWeight: 'bold',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                      }}
+                        onClick={toggleMapLayer}
+                        style={{
+                            width: '60px',
+                            height: '60px',
+                            fontWeight: 'bold',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                        }}
                     >
-                      {isSatellite ? '標準地図' : '航空写真'}
+                        {isSatellite ? '標準地図' : '航空写真'}
                     </button>
                 </div>
-                
-                
+
+
                 {/* サイドバーのコンテンツ */}
                 {isSlidebarOpen && (
                     <div>
@@ -148,15 +160,15 @@ export default function Home() {
                             flexGrow: 1
                         }}>
                             <LocationDetail location={selectedLocation} />
-                            
+
                         </div>
-                        <div className="mb-8"> 
-                            <PostButton locations={selectedLocation}/>
+                        <div className="mb-8">
+                            <PostButton locations={selectedLocation} />
                         </div>
                     </div>
                 )}
-                
-                
+
+
 
             </div>
 
@@ -191,9 +203,9 @@ export default function Home() {
                     position: 'relative',
                     zIndex: 0,
                 }}>
-                    <Map isSatellite={isSatellite}>
-                        <MarkerLayer 
-                            locations={locations} 
+                    <Map isSatellite={isSatellite} tileUrl={mapData?.url} >
+                        <MarkerLayer
+                            locations={locations}
                             onLocationSelect={handleLocationSelect}
                         />
                     </Map>
