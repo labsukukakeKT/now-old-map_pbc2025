@@ -47,7 +47,9 @@ export default async function PostPage({ searchParams }) {
 
           {/* Left Column: Info, Posts */}
           <div className={styles.leftColumn}>
-            <PostPlaceInfo place={place} posts={posts} />
+            <PostPlaceInfo place={place} posts={posts}>
+              <PostForm placeId={placeIdStr} />
+            </PostPlaceInfo>
           </div>
 
           {/* Right Column: Photo & Form - デスクトップ(lg以上)でのみ表示 */}
@@ -69,8 +71,6 @@ export default async function PostPage({ searchParams }) {
               </div>
             )}
 
-            {/* Form Section (Moved to Right) */}
-            <PostForm placeId={placeIdStr} />
           </div>
         </div>
       </div>

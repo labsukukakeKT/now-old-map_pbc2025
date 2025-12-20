@@ -47,7 +47,7 @@ export default function PostForm({ placeId }) {
         >
             <h3 className="text-xl font-bold mb-4 text-gray-800">新しい投稿を作成</h3>
 
-            <form action={createPost} className="flex flex-col gap-4">
+            <form action={createPost} className="flex flex-col gap-4 w-full">
 
                 {/* place_id を送信 */}
                 <input type="hidden" name="place_id" value={placeId} />
@@ -55,17 +55,16 @@ export default function PostForm({ placeId }) {
                 {/* user_id を送信 (localStorageから取得した値) */}
                 <input type="hidden" name="user_id" value={userId} />
 
-                <div className="flex flex-col gap-2">
-                    <label htmlFor="description" className="font-semibold text-gray-700">
-                        内容
-                    </label>
+                <div className="flex flex-col gap-2 w-full">
+                    {/* label removed */}
 
                     <textarea
                         id="description"
                         name="description"
-                        rows={4}
+                        rows={15}
                         placeholder="ここに投稿内容を入力してください..."
-                        className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        style={{ width: '100%' }}
+                        className="w-full border border-gray-300 rounded-md p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-xl font-bold"
                         required
                     />
                 </div>
