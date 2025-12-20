@@ -24,6 +24,8 @@ interface PostWithPlace {
     place_id: number
     place_name: string
     place_photo_url?: string
+    lat: number
+    lng: number
   }
 }
 
@@ -207,30 +209,39 @@ export default function AccountPage() {
             ) : (
               <div className="account-posts-list">
                 {posts.map((post) => (
-                  <Link
-                    key={post.post_id}
-                    href={`/post?id=${post.place_DB.place_id}`}
-                    className="account-post-item"
-                  >
-                    <div className="account-post-place">
-                      <span className="account-post-place-name">
-                        📍 {post.place_DB.place_name}
-                      </span>
-                      <span className="account-post-date">
-                        {new Date(post.uploaded_date).toLocaleDateString("ja-JP")}
-                      </span>
+                  <div key={post.post_id} className="account-post-item">
+                    <Link
+                      href={`/post?place_id=${post.place_DB.place_id}`}
+                      className="account-post-link"
+                    >
+                      <div className="account-post-place">
+                        <span className="account-post-place-name">
+                          📍 {post.place_DB.place_name}
+                        </span>
+                        <span className="account-post-date">
+                          {new Date(post.uploaded_date).toLocaleDateString("ja-JP")}
+                        </span>
+                      </div>
+                      <p className="account-post-description">
+                        {post.description}
+                      </p>
+                      {post.photo_url && (
+                        <img
+                          src={post.photo_url}
+                          alt="投稿画像"
+                          className="account-post-image"
+                        />
+                      )}
+                    </Link>
+                    <div className="account-post-footer">
+                      <Link
+                        href={`/?lat=${post.place_DB.lat}&lng=${post.place_DB.lng}&zoom=16&place_id=${post.place_DB.place_id}`}
+                        className="account-post-map-link"
+                      >
+                        🗺️ コメントの場所へ行く
+                      </Link>
                     </div>
-                    <p className="account-post-description">
-                      {post.description}
-                    </p>
-                    {post.photo_url && (
-                      <img
-                        src={post.photo_url}
-                        alt="投稿画像"
-                        className="account-post-image"
-                      />
-                    )}
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}
@@ -449,6 +460,38 @@ export default function AccountPage() {
           object-fit: cover;
           border-radius: 8px;
           margin-top: 10px;
+        }
+
+        .account-post-link {
+          display: block;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .account-post-footer {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 12px;
+          padding-top: 10px;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        .account-post-map-link {
+          font-size: 13px;
+          font-weight: 500;
+          color: #667eea;
+          text-decoration: none;
+          padding: 6px 12px;
+          background: linear-gradient(135deg, #f0f4ff 0%, #e8efff 100%);
+          border-radius: 8px;
+          transition: all 0.2s ease;
+        }
+
+        .account-post-map-link:hover {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
       `}</style>
     </div>
