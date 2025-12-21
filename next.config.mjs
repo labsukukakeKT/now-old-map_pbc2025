@@ -6,6 +6,10 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'bgtsyduuswexehscoaha.supabase.co',
             },
+            {
+                protocol: 'https',
+                hostname: 'www.titech.ac.jp',
+            },
         ],
     },
 };
