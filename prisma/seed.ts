@@ -8,7 +8,9 @@ const CHANGE_USER_DB = false;
 async function main() {
   // 依存関係のある子テーブルから順に削除
   if (CHANGE_PLACE_DB) {
+    await prisma.post.deleteMany()
     await prisma.place_DB.deleteMany()
+
 
     for (const p of places) {
       await prisma.place_DB.upsert({
