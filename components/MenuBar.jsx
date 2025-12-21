@@ -40,7 +40,7 @@ export default function MenuBar() {
 
         {/* 中央：タイトル */}
         <div style={styles.titleWrap}>
-          <div style={styles.title}>Now - Old Map</div>
+          <div style={styles.title}>Rewind Map</div>
         </div>
 
         {/* 右：アカウント */}
