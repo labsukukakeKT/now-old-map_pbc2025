@@ -7,8 +7,12 @@ export default function Map({ children, tileUrl, center = [35.5117, 139.4754], z
   // URL引数から緯度経度を取得
   // 引数がないときのデフォルト値はすずかけ台
   const searchParams = useSearchParams();
-  const lat = searchParams.get('lat') || center[0];
-  const lng = searchParams.get('lng') || center[1];
+  const latParam = searchParams?.get('lat');
+  const lngParam = searchParams?.get('lng');
+
+  // パラメータを数値に変換し、無効な値の場合はデフォルト値を使用
+  const lat = latParam && !isNaN(parseFloat(latParam)) ? parseFloat(latParam) : center[0];
+  const lng = lngParam && !isNaN(parseFloat(lngParam)) ? parseFloat(lngParam) : center[1];
 
 
   // デフォルトURL（tileUrlがまだ無い時のフォールバック）

@@ -8,6 +8,7 @@ import PostButton from '@/components/PostButton'
 import SideBar from "@/components/SideBar";
 import LayerToggle from "@/components/LayerToggle";
 import TileLoader from "@/utils/tileloader";
+import PlaceAutoSelector from "@/components/PlaceAutoSelector";
 
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
@@ -103,6 +104,15 @@ export default function Home() {
   // 配列でなければ空配列にフォールバック
   const safeLocations = Array.isArray(locations) ? locations : [];
 
+  useEffect(() => {
+    function onSidebarState(e) {
+      const d = e?.detail ?? {};
+      setSidebarOpen(Boolean(d.open));
+      if (typeof d.width === "number") setSidebarWidth(d.width);
+    }
+    window.addEventListener("sidebar-state", onSidebarState);
+    return () => window.removeEventListener("sidebar-state", onSidebarState);
+  }, []);
 
   // 選択された場所の管理
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -176,6 +186,7 @@ export default function Home() {
     window.addEventListener("sidebar-state", onSidebarState);
     return () => window.removeEventListener("sidebar-state", onSidebarState);
   }, []);
+
 
 
   return (
