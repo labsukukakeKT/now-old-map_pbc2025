@@ -62,7 +62,7 @@ export default function PostPageImage({ place }) {
                 onClick={!photoUrl ? handleUploadClick : undefined}
             >
                 {photoUrl ? (
-                    <div className="relative w-auto h-full">
+                    <div className="relative w-full overflow-hidden rounded-lg">
                         <Image
                             src={photoUrl}
                             alt={place.place_name}
@@ -70,26 +70,59 @@ export default function PostPageImage({ place }) {
                             height={0}
                             sizes="100vw"
                             quality={10}
-                            style={{ width: 'auto', height: '100%' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             className="max-w-none object-contain rounded-lg"
                             priority
                             unoptimized={false}
                         />
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center w-full h-full text-gray-500">
-                        <span className="mb-3 text-sm font-bold">画像をアップロード</span>
+                    <div style={{
+                        width: '300px',
+                        height: '210px',
+                        backgroundColor: '#e0e0e0',
+                        borderRadius: '5px',
+                        marginBottom: '15px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        cursor: photoUrl ? 'default' : 'pointer'
+                    }}
+                        onClick={!photoUrl ? handleUploadClick : undefined}
+                    >
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        height: '100%',
+                        cursor: 'pointer'
+                    }}>
+                        <svg width="36" height="48" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M12 3v10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M8 7l4-4 4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                         <button
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                handleUploadClick()
-                            }}
+                            onClick={handleUploadClick}
                             disabled={isUploading}
-                            className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition text-sm ${isUploading ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#2196F3',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: isUploading ? 'not-allowed' : 'pointer',
+                                fontSize: '12px',
+                                opacity: isUploading ? 0.6 : 1
+                            }}
                         >
-                            {isUploading ? 'アップロード中...' : '画像を選択'}
+                            {isUploading ? 'アップロード中...' : '画像をアップロード'}
                         </button>
+                    </div>
                     </div>
                 )}
                 <input

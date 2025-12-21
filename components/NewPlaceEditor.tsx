@@ -442,7 +442,7 @@ export default function PlaceInfoEditor({
                 id="pie-placeName"
                 className={`pie-input ${combinedErrors?.placeName ? "invalid" : ""}`}
                 type="text"
-                placeholder="e.g., Old Town Square"
+                placeholder="e.g. 東京科学大学"
                 value={value.placeName}
                 onChange={handleField("placeName")}
                 onBlur={handleBlurField}

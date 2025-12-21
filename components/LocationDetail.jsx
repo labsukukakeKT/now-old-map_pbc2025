@@ -157,9 +157,11 @@ export default function LocationDetail({ location }) {
                         height: '100%',
                         cursor: 'pointer'
                     }}>
-                        <span style={{ color: '#999', fontSize: '14px', marginBottom: '8px' }}>
-                            画像をアップロード
-                        </span>
+                        <svg width="36" height="48" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M12 3v10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M8 7l4-4 4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                         <button
                             onClick={handleUploadClick}
                             disabled={isUploading}
@@ -174,7 +176,7 @@ export default function LocationDetail({ location }) {
                                 opacity: isUploading ? 0.6 : 1
                             }}
                         >
-                            {isUploading ? 'アップロード中...' : '画像を選択'}
+                            {isUploading ? 'アップロード中...' : '画像をアップロード'}
                         </button>
                     </div>
                 )}
@@ -331,7 +333,7 @@ export default function LocationDetail({ location }) {
                 )}
             </div>
             {(location) && (
-                <div className="mb-8" style={{ padding: '0 10px', flexShrink: 0 }}>
+                <div className="mt-4 mb-8" style={{ marginTop: '16px', marginLeft: '-8px', padding: '0 10px', flexShrink: 0 }}>
                     <PostButton locations={location} />
                 </div>
             )}

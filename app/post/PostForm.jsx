@@ -24,10 +24,27 @@ export default function PostForm({ placeId }) {
 
     if (!userId) {
         return (
-            <div className="max-w-md mt-6 p-6 bg-white rounded-lg shadow-md text-center border-t-4 border-blue-500">
+            <div className="max-w-md mt-6 p-6 bg-white rounded-lg shadow-md text-center" style={{ borderTop: '4px solid #0b5fff' }}>
                 <p className="mb-4 text-gray-700">投稿するにはログインが必要です。</p>
-                <a href="/login" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition">
-                    ログインする
+                <a href="/login" style={{ textDecoration: 'none' }}>
+                    <button style={{
+                        background: 'linear-gradient(180deg,#0b5fff 0%,#0061e0 100%)',
+                        color: '#fff',
+                        border: 0,
+                        padding: '9px 14px',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        boxShadow: '0 6px 18px rgba(11,95,255,0.14)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                    }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        投稿する
+                    </button>
                 </a>
             </div>
         )
@@ -63,17 +80,32 @@ export default function PostForm({ placeId }) {
                         name="description"
                         rows={7}
                         placeholder="この場所の豆知識をみんなに共有しましょう"
-                        style={{ width: '100%', fontSize: '1.25rem', fontWeight: '700', fontFamily: 'inherit', color: '#1f2937' }}
-                        className="w-full border border-gray-300 rounded-md p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-xl font-bold text-gray-800 placeholder:text-xl placeholder:font-bold placeholder:text-gray-800 placeholder:opacity-100"
+                        style={{ width: '100%', fontSize: '14px', fontWeight: 600, fontFamily: 'inherit', color: '#1f2937', border: '1px solid #d0d7de', borderRadius: 6, padding: '12px', resize: 'vertical' }}
+                        className="w-full"
                         required
                     />
                 </div>
 
                 <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 ease-in-out shadow-md"
+                    style={{
+                        background: 'linear-gradient(180deg,#0b5fff 0%,#0061e0 100%)',
+                        color: '#fff',
+                        border: 0,
+                        padding: '9px 14px',
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        boxShadow: '0 6px 18px rgba(11,95,255,0.14)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                    }}
                 >
-                    決定（保存）
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    投稿する
                 </button>
 
             </form>
