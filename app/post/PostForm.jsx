@@ -6,19 +6,52 @@ import { useEffect, useState } from 'react'
 
 export default function PostForm({ placeId }) {
     const [userId, setUserId] = useState(null)
-
     useEffect(() => {
-        // localStorageからユーザー情報を取得
-        const sessionStr = localStorage.getItem('session')
-        if (sessionStr) {
+        // helper to update userId from storage
+        const update = () => {
             try {
-                const session = JSON.parse(sessionStr)
-                if (session && session.userId) {
-                    setUserId(session.userId)
+                const sessionStr = localStorage.getItem('session')
+                if (sessionStr) {
+                    const session = JSON.parse(sessionStr)
+                    if (session && session.userId) {
+                        setUserId(session.userId)
+                        return
+                    }
                 }
             } catch (e) {
-                console.error("Failed to parse session", e)
+                console.error('Failed to parse session', e)
             }
+
+            // fallback: check `user` key for id-like info
+            try {
+                const userStr = localStorage.getItem('user')
+                if (userStr) {
+                    const user = JSON.parse(userStr)
+                    if (user && (user.user_id || user.id)) {
+                        setUserId(user.user_id || user.id)
+                        return
+                    }
+                }
+            } catch (e) {
+                // ignore
+            }
+
+            setUserId(null)
+        }
+
+        update()
+
+        const onChange = () => update()
+        window.addEventListener('storage', onChange)
+        window.addEventListener('user-changed', onChange)
+        document.addEventListener('visibilitychange', onChange)
+        const iv = setInterval(onChange, 1000)
+
+        return () => {
+            window.removeEventListener('storage', onChange)
+            window.removeEventListener('user-changed', onChange)
+            document.removeEventListener('visibilitychange', onChange)
+            clearInterval(iv)
         }
     }, [])
 

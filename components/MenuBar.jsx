@@ -9,18 +9,58 @@ export default function MenuBar() {
   const router = useRouter();
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    // Get user from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-      } catch (error) {
-        console.error("Failed to parse user data:", error);
+  // update user from localStorage (supports other code setting either 'user' or 'session')
+  const updateUserFromStorage = () => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+        return;
       }
+    } catch (e) {
+      // ignore
     }
-  }, [pathname]); // pathname が変わるたびに再取得
+
+    try {
+      const sessionStr = localStorage.getItem('session');
+      if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        if (session && session.user) {
+          setUser(session.user);
+          return;
+        }
+        if (session && session.userId) {
+          // minimal user object
+          setUser({ user_name: session.userName || session.user_id || '' });
+          return;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    setUser(null);
+  };
+
+  useEffect(() => {
+    // initial + when pathname changes
+    updateUserFromStorage();
+  }, [pathname]);
+
+  useEffect(() => {
+    const onChange = () => updateUserFromStorage();
+    window.addEventListener('storage', onChange);
+    window.addEventListener('user-changed', onChange);
+    document.addEventListener('visibilitychange', onChange);
+    const iv = setInterval(onChange, 1000);
+
+    return () => {
+      window.removeEventListener('storage', onChange);
+      window.removeEventListener('user-changed', onChange);
+      document.removeEventListener('visibilitychange', onChange);
+      clearInterval(iv);
+    };
+  }, []);
 
   return (
     <header style={styles.header}>
