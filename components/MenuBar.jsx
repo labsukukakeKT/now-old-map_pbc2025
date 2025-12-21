@@ -22,45 +22,43 @@ export default function MenuBar() {
     }
   }, [pathname]); // pathname が変わるたびに再取得
 
-  const handleHomeClick = (e) => {
-    e.preventDefault();
-    window.location.href = "/";
-  };
-
-  const isHome = pathname === "/";
-  const isAccount = pathname === "/account";
-
   return (
     <header style={styles.header}>
       <div style={styles.inner}>
-        {/* 左：ホーム */}
-        <Link href="/" onClick={handleHomeClick} style={{ ...styles.boxBtn, ...(isHome ? styles.active : {}) }} aria-label="ホーム">
-          🏠
-        </Link>
-
-        {/* 中央：タイトル */}
-        <div style={styles.titleWrap}>
-          <div style={styles.title}>Now - Old Map</div>
+        {/* 中央 title - larger hitbox, navigates home */}
+        <div style={{ ...styles.titleWrap, justifyContent: 'flex-start' }}>
+          <Link href="/" aria-label="ホーム" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', padding: '8px 12px' }}>
+            <div style={{ ...styles.title, marginLeft: -8 }}>Rewind Map</div>
+          </Link>
         </div>
 
-        {/* 右：アカウント */}
+        {/* 右: account as monochrome icon + username (truncated) */}
         <Link
           href="/account"
-          style={{ ...styles.boxBtn, ...(isAccount ? styles.active : {}), overflow: 'hidden' }}
+          aria-label="アカウント"
+          style={{
+            ...styles.boxBtn,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '8px 12px',
+            width: 'auto',
+          }}
         >
-          {user?.user_photo_url ? (
-            <img
-              src={user.user_photo_url}
-              alt="Profile"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-          ) : (
-            "アカウント"
-          )}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span style={{
+            marginLeft: 8,
+            maxWidth: 140,
+            display: 'inline-block',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            color: 'rgba(255,255,255,0.95)',
+            fontSize: 14,
+          }}>{user?.user_name || ''}</span>
         </Link>
       </div>
     </header>

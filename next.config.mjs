@@ -8,7 +8,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'www.titech.ac.jp',
+                hostname: '**',
             },
         ],
     },
